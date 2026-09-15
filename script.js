@@ -77,9 +77,11 @@ window.imprimirTicket = (id) => {
   }).join('');
   const win = window.open('', '_blank', 'width=380,height=600');
   win.document.write(`<!DOCTYPE html><html><head><title>Ticket #${o.id}</title>
+    <meta name="color-scheme" content="light">
     <style>
+      html,body{background:#fff !important;}
       body{font-family:monospace;font-size:14px;padding:12px;color:#000;}
-      h2{margin:0 0 4px;font-size:16px;}
+      h2{margin:0 0 4px;font-size:16px;color:#000;}
       .linea{border-top:1px dashed #000;margin:8px 0;}
       .total{font-weight:bold;font-size:16px;margin-top:8px;}
     </style></head><body>
@@ -97,7 +99,8 @@ window.imprimirTicket = (id) => {
     </body></html>`);
   win.document.close();
   win.focus();
-  win.print();
+  win.onafterprint = () => win.close();
+  setTimeout(() => win.print(), 150);
 };
 
 window.eliminarTicket = async (id) => {
