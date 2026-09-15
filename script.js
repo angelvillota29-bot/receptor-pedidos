@@ -84,6 +84,8 @@ window.imprimirTicket = (id) => {
       h2{margin:0 0 4px;font-size:16px;color:#000;}
       .linea{border-top:1px dashed #000;margin:8px 0;}
       .total{font-weight:bold;font-size:16px;margin-top:8px;}
+      .btn-cerrar{margin-top:16px;width:100%;padding:8px;font-size:14px;cursor:pointer;}
+      @media print { .btn-cerrar{ display:none; } }
     </style></head><body>
     <h2>Pedido #${o.id}</h2>
     <div>${formatoHora(o.createdAt)}</div>
@@ -96,10 +98,10 @@ window.imprimirTicket = (id) => {
     ${itemsHtml}
     <div class="linea"></div>
     <div class="total">Total: ${formatoCOP(o.total)}</div>
+    <button class="btn-cerrar" onclick="window.close()">Cerrar esta ventana</button>
     </body></html>`);
   win.document.close();
   win.focus();
-  win.onafterprint = () => win.close();
   setTimeout(() => win.print(), 150);
 };
 
