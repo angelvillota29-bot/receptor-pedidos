@@ -25,7 +25,7 @@ function hoyISO() {
   return new Date().toLocaleDateString('en-CA', { timeZone: TZ });
 }
 
-const CANAL_LABEL = { whatsapp: 'WhatsApp', telegram: 'Telegram', pagina: 'Página web' };
+const CANAL_LABEL = { whatsapp: 'WhatsApp', telegram: 'Telegram', chat_web: 'Chat del sitio', pagina: 'Carrito de la página' };
 const PAGO_LABEL = { efectivo: 'Efectivo', nequi: 'Nequi' };
 
 // ── Sesión (reusa el mismo usuario/contraseña del panel del sitio) ─────────
