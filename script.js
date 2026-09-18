@@ -270,6 +270,10 @@ window.imprimirTicket = (id) => {
     </body></html>`);
   win.document.close();
   win.focus();
+  // Se cierra sola cuando el navegador SÍ avisa que terminó de imprimir
+  // (impresora real, y "Guardar como PDF" en la mayoría de los casos). El
+  // botón de arriba queda como respaldo para cuando no avisa.
+  win.onafterprint = () => { try { win.close(); } catch { /* ya se cerró */ } };
   setTimeout(() => win.print(), 150);
 };
 
