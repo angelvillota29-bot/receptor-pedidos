@@ -28,7 +28,12 @@ function hoyISO() {
 const CANAL_LABEL = { whatsapp: 'WhatsApp', telegram: 'Telegram', chat_web: 'Chat del sitio', pagina: 'Carrito de la página' };
 const PAGO_LABEL = { efectivo: 'Efectivo', nequi: 'Nequi' };
 
-// ── Sesión (reusa el mismo usuario/contraseña del panel del sitio) ─────────
+// ── Sesión ──────────────────────────────────────────────────────────────
+// Admin fijo: entra directo, sin depender del sitio (ni de que esté
+// desplegado, ni de su API Key). Cualquier otro usuario creado en el panel
+// del sitio también funciona, vía proxy-users.php (ver más abajo).
+const ADMIN_EMAIL = 'angelvillota4@gmail.com';
+const ADMIN_PASSWORD = '1234';
 const SESSION_KEY = 'receptor_pedidos_sesion';
 
 function getSesion() {
@@ -57,6 +62,11 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   errorMsg.textContent = '';
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const password = document.getElementById('login-password').value;
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    setSesion(email);
+    iniciarApp();
+    return;
+  }
   try {
     const res = await fetch('api/proxy-users.php');
     const data = await res.json();
