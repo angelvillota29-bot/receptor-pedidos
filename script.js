@@ -172,7 +172,8 @@ window.imprimirTicket = (id) => {
   win.document.write(`<!DOCTYPE html><html><head><title>Ticket #${o.id}</title>
     <meta name="color-scheme" content="light">
     <style>
-      html,body{background:#fff !important;}
+      @page { size: auto; margin: 6mm; }
+      html,body{background:#fff !important; height:auto !important; margin:0;}
       body{font-family:monospace;font-size:14px;padding:12px;color:#000;}
       h2{margin:0 0 4px;font-size:16px;color:#000;}
       .linea{border-top:1px dashed #000;margin:8px 0;}
