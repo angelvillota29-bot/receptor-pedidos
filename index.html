@@ -10,20 +10,58 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="top-bar">
-    <h1 class="brand-title">🎫 Receptor de Pedidos</h1>
-    <div class="top-actions">
-      <span id="last-update" class="last-update"></span>
-      <button id="refresh-btn" class="btn-primary-sm">Actualizar</button>
+  <div id="login-overlay" class="modal-overlay hidden">
+    <div class="login-card">
+      <h2>Iniciar sesión</h2>
+      <p class="login-hint">Usa el mismo usuario y contraseña de la página del negocio.</p>
+      <form id="login-form">
+        <div class="input-group"><label>Correo</label><input type="email" id="login-email" required></div>
+        <div class="input-group"><label>Contraseña</label><input type="password" id="login-password" required></div>
+        <p id="login-error-msg" class="error-msg"></p>
+        <button type="submit" class="btn-primary">Entrar</button>
+      </form>
     </div>
-  </header>
-
-  <div id="config-warning" class="config-warning hidden">
-    ⚠️ Falta configurar <code>RESTAURANTE_API_URL</code> y/o <code>RESTAURANTE_API_KEY</code> como variables de entorno de este servicio.
   </div>
 
-  <main id="orders-grid" class="orders-grid"></main>
-  <p id="empty-msg" class="empty-msg hidden">No hay pedidos por ahora. Los nuevos pedidos aparecen solos aquí (se actualiza cada 20 segundos).</p>
+  <div id="app-root" class="hidden">
+    <header class="top-bar">
+      <h1 class="brand-title">🎫 Receptor de Pedidos</h1>
+      <nav class="tabs">
+        <button id="tab-pedidos-btn" class="tab-btn active" type="button">Pedidos</button>
+        <button id="tab-historial-btn" class="tab-btn" type="button">Historial</button>
+      </nav>
+      <div class="top-actions">
+        <span id="last-update" class="last-update"></span>
+        <button id="refresh-btn" class="btn-primary-sm">Actualizar</button>
+        <button id="logout-btn" class="btn-secondary-sm">Salir</button>
+      </div>
+    </header>
+
+    <div id="config-warning" class="config-warning hidden">
+      ⚠️ Falta configurar <code>RESTAURANTE_API_URL</code> y/o <code>RESTAURANTE_API_KEY</code> como variables de entorno de este servicio.
+    </div>
+
+    <section id="tab-pedidos">
+      <main id="orders-grid" class="orders-grid"></main>
+      <p id="empty-msg" class="empty-msg hidden">No hay pedidos por ahora. Los nuevos pedidos aparecen solos aquí (se actualiza cada 20 segundos).</p>
+    </section>
+
+    <section id="tab-historial" class="hidden">
+      <div class="historial-toolbar">
+        <label>Día: <input type="date" id="historial-fecha"></label>
+        <span id="historial-total" class="historial-total"></span>
+        <button id="historial-imprimir-btn" class="btn-primary-sm">🖨️ Imprimir</button>
+        <button id="historial-descargar-btn" class="btn-primary-sm">⬇️ Descargar CSV</button>
+      </div>
+      <table id="historial-tabla" class="historial-tabla">
+        <thead>
+          <tr><th>Hora</th><th>Cliente</th><th>Canal</th><th>Pago</th><th>Total</th></tr>
+        </thead>
+        <tbody id="historial-tbody"></tbody>
+      </table>
+      <p id="historial-empty-msg" class="empty-msg hidden">No hay pedidos registrados ese día.</p>
+    </section>
+  </div>
 
   <div id="print-area" class="hidden"></div>
 
