@@ -242,7 +242,10 @@ window.imprimirTicket = (id) => {
     const prefix = it.tipo === 'acompanamiento' ? '+ ' : '';
     return `<div>${it.cantidad} x ${prefix}${it.name}</div>`;
   }).join('');
-  const win = window.open('', '_blank', 'width=380,height=600');
+  // Sin width/height: el navegador la abre como pestaña normal a pantalla
+  // completa (mismo diálogo de imprimir grande que ya funciona bien en
+  // Historial), en vez de la ventanita chica de antes.
+  const win = window.open('', '_blank');
   win.document.write(`<!DOCTYPE html><html><head><title>Ticket #${o.id}</title>
     <meta name="color-scheme" content="light">
     <style>
