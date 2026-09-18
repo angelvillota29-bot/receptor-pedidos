@@ -29,6 +29,7 @@
       <nav class="tabs">
         <button id="tab-pedidos-btn" class="tab-btn active" type="button">Pedidos</button>
         <button id="tab-historial-btn" class="tab-btn" type="button">Historial</button>
+        <button id="tab-usuarios-btn" class="tab-btn hidden" type="button">Usuarios</button>
       </nav>
       <div class="top-actions">
         <span id="last-update" class="last-update"></span>
@@ -60,6 +61,20 @@
         <tbody id="historial-tbody"></tbody>
       </table>
       <p id="historial-empty-msg" class="empty-msg hidden">No hay pedidos registrados ese día.</p>
+    </section>
+
+    <section id="tab-usuarios" class="hidden">
+      <div class="usuarios-crear">
+        <h3>Crear usuario</h3>
+        <form id="crear-usuario-form">
+          <div class="input-group"><label>Correo</label><input type="email" id="nuevo-usuario-email" required></div>
+          <div class="input-group"><label>Contraseña</label><input type="text" id="nuevo-usuario-password" required></div>
+          <p id="crear-usuario-error-msg" class="error-msg"></p>
+          <button type="submit" class="btn-primary-sm">Crear usuario</button>
+        </form>
+      </div>
+      <h3>Usuarios con acceso</h3>
+      <ul id="usuarios-lista" class="usuarios-lista"></ul>
     </section>
   </div>
 

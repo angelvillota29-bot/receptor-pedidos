@@ -76,3 +76,12 @@ h1, h2 { font-family: var(--title-font); }
   body, #tab-historial { background: #fff !important; color: #000 !important; }
   .historial-tabla th, .historial-tabla td { border-color: #000 !important; color: #000 !important; }
 }
+
+/* ── Usuarios ──────────────────────────────────────────────────────────── */
+#tab-usuarios { padding: 1.5rem; max-width: 420px; }
+#tab-usuarios h3 { color: var(--accent); margin: 0 0 0.8rem; }
+.usuarios-crear { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin-bottom: 1.5rem; }
+.usuarios-crear .btn-primary-sm { width: 100%; }
+.usuarios-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.usuarios-lista li { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+.usuarios-lista .btn-delete-sm { background: transparent; border: 1px solid var(--error); color: var(--error); border-radius: 6px; padding: 0.3rem 0.6rem; cursor: pointer; font-size: 0.8rem; }

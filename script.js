@@ -50,8 +50,10 @@ function cerrarSesion() {
 }
 
 async function iniciarApp() {
+  const sesion = getSesion();
   document.getElementById('login-overlay').classList.add('hidden');
   document.getElementById('app-root').classList.remove('hidden');
+  document.getElementById('tab-usuarios-btn').classList.toggle('hidden', sesion?.email !== ADMIN_EMAIL);
   cargarPedidos();
   setInterval(cargarPedidos, REFRESH_MS);
 }
@@ -67,13 +69,29 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     iniciarApp();
     return;
   }
+  // Usuarios propios de este receptor (creados desde la pestaña Usuarios) —
+  // no depende del sitio para nada.
+  try {
+    const res = await fetch('api/login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setSesion(email);
+      iniciarApp();
+      return;
+    }
+  } catch (e) {
+    // sigue al respaldo del sitio
+  }
+  // Respaldo: usuarios creados en el panel del sitio.
   try {
     const res = await fetch('api/proxy-users.php');
     const data = await res.json();
     if (!data.success) {
-      errorMsg.textContent = data.error === 'no_configurado'
-        ? 'Falta configurar RESTAURANTE_API_URL/RESTAURANTE_API_KEY en este servicio.'
-        : 'No se pudo verificar el usuario, intenta de nuevo.';
+      errorMsg.textContent = 'Correo o contraseña incorrectos.';
       return;
     }
     const users = data.users || [];
@@ -85,7 +103,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     setSesion(email);
     iniciarApp();
   } catch (e) {
-    errorMsg.textContent = 'No se pudo conectar con el servidor.';
+    errorMsg.textContent = 'Correo o contraseña incorrectos.';
   }
 });
 
@@ -94,14 +112,70 @@ document.getElementById('logout-btn').addEventListener('click', cerrarSesion);
 // ── Tabs ────────────────────────────────────────────────────────────────
 document.getElementById('tab-pedidos-btn').addEventListener('click', () => cambiarTab('pedidos'));
 document.getElementById('tab-historial-btn').addEventListener('click', () => cambiarTab('historial'));
+document.getElementById('tab-usuarios-btn').addEventListener('click', () => cambiarTab('usuarios'));
 
 function cambiarTab(tab) {
   document.getElementById('tab-pedidos').classList.toggle('hidden', tab !== 'pedidos');
   document.getElementById('tab-historial').classList.toggle('hidden', tab !== 'historial');
+  document.getElementById('tab-usuarios').classList.toggle('hidden', tab !== 'usuarios');
   document.getElementById('tab-pedidos-btn').classList.toggle('active', tab === 'pedidos');
   document.getElementById('tab-historial-btn').classList.toggle('active', tab === 'historial');
+  document.getElementById('tab-usuarios-btn').classList.toggle('active', tab === 'usuarios');
   if (tab === 'historial') cargarHistorial();
+  if (tab === 'usuarios') cargarUsuarios();
 }
+
+// ── Usuarios (solo admin) ───────────────────────────────────────────────
+async function llamarUsuariosApi(body) {
+  const res = await fetch('api/usuarios.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ adminPassword: ADMIN_PASSWORD, ...body }),
+  });
+  return res.json();
+}
+
+async function cargarUsuarios() {
+  const lista = document.getElementById('usuarios-lista');
+  try {
+    const data = await llamarUsuariosApi({ accion: 'listar' });
+    if (!data.success) {
+      lista.innerHTML = `<li>${escapeHtml(data.error || 'No se pudo cargar la lista.')}</li>`;
+      return;
+    }
+    const usuarios = data.usuarios || [];
+    lista.innerHTML = usuarios.length === 0
+      ? '<li>Todavía no has creado ningún usuario extra.</li>'
+      : usuarios.map((u) => `<li><span>${escapeHtml(u.email)}</span><button class="btn-delete-sm" onclick="eliminarUsuario(${JSON.stringify(u.email)})">Eliminar</button></li>`).join('');
+  } catch (e) {
+    lista.innerHTML = '<li>No se pudo conectar con el servidor.</li>';
+  }
+}
+
+window.eliminarUsuario = async (email) => {
+  if (!confirm(`¿Eliminar el acceso de ${email}?`)) return;
+  await llamarUsuariosApi({ accion: 'eliminar', email }).catch(() => {});
+  cargarUsuarios();
+};
+
+document.getElementById('crear-usuario-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorMsg = document.getElementById('crear-usuario-error-msg');
+  errorMsg.textContent = '';
+  const email = document.getElementById('nuevo-usuario-email').value.trim();
+  const password = document.getElementById('nuevo-usuario-password').value;
+  try {
+    const data = await llamarUsuariosApi({ accion: 'crear', email, password });
+    if (!data.success) {
+      errorMsg.textContent = data.error || 'No se pudo crear el usuario.';
+      return;
+    }
+    document.getElementById('crear-usuario-form').reset();
+    cargarUsuarios();
+  } catch (e) {
+    errorMsg.textContent = 'No se pudo conectar con el servidor.';
+  }
+});
 
 async function cargarPedidos() {
   try {
