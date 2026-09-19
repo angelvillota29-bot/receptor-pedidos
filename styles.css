@@ -32,6 +32,7 @@ h1, h2 { font-family: var(--title-font); }
 .ticket-time { font-size: 0.8rem; color: var(--text-muted); }
 .ticket-client { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.9rem; border-bottom: 1px dashed var(--border); padding-bottom: 0.6rem; }
 .ticket-nota { color: var(--accent); font-style: italic; }
+.ticket-tipo-entrega { font-weight: 700; color: var(--accent); font-size: 0.85rem; text-transform: uppercase; }
 .ticket-items { margin: 0; padding-left: 1.1rem; font-size: 0.92rem; }
 .ticket-total { font-weight: bold; font-size: 1.05rem; text-align: right; }
 .ticket-actions { display: flex; gap: 0.6rem; margin-top: 0.4rem; }

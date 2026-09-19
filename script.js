@@ -26,6 +26,7 @@ function hoyISO() {
 }
 
 const CANAL_LABEL = { whatsapp: 'WhatsApp', telegram: 'Telegram', chat_web: 'Chat del sitio', pagina: 'Carrito de la página' };
+const TIPO_ENTREGA_LABEL = { domicilio: '🛵 A domicilio', recoger: '🏪 Para recoger', comer_aqui: '🍽️ Comer aquí' };
 const PAGO_LABEL = { efectivo: 'Efectivo', nequi: 'Nequi' };
 
 // ── Sesión ──────────────────────────────────────────────────────────────
@@ -206,19 +207,17 @@ function renderPedidos() {
   }
   emptyMsg.classList.add('hidden');
   grid.innerHTML = ordersData.map(o => {
-    const itemsHtml = (o.items || []).map(it => {
-      const prefix = it.tipo === 'acompanamiento' ? '+ ' : '';
-      return `<li>${it.cantidad} x ${prefix}${it.name}</li>`;
-    }).join('');
+    const itemsHtml = (o.items || []).map(it => `<li>${it.cantidad} x ${it.name}</li>`).join('');
     return `<article class="ticket" data-id="${o.id}">
       <div class="ticket-header">
         <span class="ticket-id">#${String(o.id).slice(-6)}</span>
         <span class="ticket-time">${formatoHora(o.createdAt)}</span>
       </div>
       <div class="ticket-client">
+        <span class="ticket-tipo-entrega">${TIPO_ENTREGA_LABEL[o.tipoEntrega] || o.tipoEntrega || ''}</span>
         <strong>${escapeHtml(o.cliente?.nombre || 'Sin nombre')}</strong>
         <span>${escapeHtml(o.cliente?.telefono || '')}</span>
-        <span>${escapeHtml(o.cliente?.direccion || '')}</span>
+        ${o.cliente?.direccion ? `<span>${escapeHtml(o.cliente.direccion)}</span>` : ''}
         ${o.cliente?.nota ? `<span class="ticket-nota">Nota: ${escapeHtml(o.cliente.nota)}</span>` : ''}
       </div>
       <ul class="ticket-items">${itemsHtml}</ul>
@@ -238,10 +237,7 @@ function escapeHtml(s) {
 window.imprimirTicket = (id) => {
   const o = ordersData.find(x => x.id == id);
   if (!o) return;
-  const itemsHtml = (o.items || []).map(it => {
-    const prefix = it.tipo === 'acompanamiento' ? '+ ' : '';
-    return `<div>${it.cantidad} x ${prefix}${it.name}</div>`;
-  }).join('');
+  const itemsHtml = (o.items || []).map(it => `<div>${it.cantidad} x ${it.name}</div>`).join('');
   // Sin width/height: el navegador la abre como pestaña normal a pantalla
   // completa (mismo diálogo de imprimir grande que ya funciona bien en
   // Historial), en vez de la ventanita chica de antes.
@@ -260,10 +256,11 @@ window.imprimirTicket = (id) => {
     </style></head><body>
     <h2>Pedido #${o.id}</h2>
     <div>${formatoHora(o.createdAt)}</div>
+    <div><strong>${TIPO_ENTREGA_LABEL[o.tipoEntrega] || o.tipoEntrega || ''}</strong></div>
     <div class="linea"></div>
     <div><strong>${escapeHtml(o.cliente?.nombre || '')}</strong></div>
     <div>${escapeHtml(o.cliente?.telefono || '')}</div>
-    <div>${escapeHtml(o.cliente?.direccion || '')}</div>
+    ${o.cliente?.direccion ? `<div>${escapeHtml(o.cliente.direccion)}</div>` : ''}
     ${o.cliente?.nota ? `<div>Nota: ${escapeHtml(o.cliente.nota)}</div>` : ''}
     <div class="linea"></div>
     ${itemsHtml}
