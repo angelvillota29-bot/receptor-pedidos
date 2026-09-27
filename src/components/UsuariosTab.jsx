@@ -5,7 +5,6 @@ export default function UsuariosTab() {
   const [usuarios, setUsuarios] = useState([]);
   const [loadError, setLoadError] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [formError, setFormError] = useState('');
 
   const cargar = async () => {
@@ -30,13 +29,12 @@ export default function UsuariosTab() {
     e.preventDefault();
     setFormError('');
     try {
-      const data = await usuariosApi({ accion: 'crear', email, password });
+      const data = await usuariosApi({ accion: 'crear', email });
       if (!data.success) {
-        setFormError(data.error || 'No se pudo crear el usuario.');
+        setFormError(data.error || 'No se pudo agregar el correo.');
         return;
       }
       setEmail('');
-      setPassword('');
       cargar();
     } catch {
       setFormError('No se pudo conectar con el servidor.');
@@ -52,19 +50,18 @@ export default function UsuariosTab() {
   return (
     <section>
       <div style={{ padding: '20px 20px 0' }}>
-        <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--brand-text-dark)' }}>Crear usuario</h3>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--brand-text-dark)' }}>Agregar acceso</h3>
+        <p style={{ fontSize: 12, color: '#8a7a6a', maxWidth: 340 }}>
+          Esta persona podrá entrar con su propia cuenta de Google (ya no con contraseña) y ver la cola de pedidos.
+        </p>
         <form onSubmit={crear} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 340 }}>
           <label style={labelStyle}>
-            Correo
+            Correo de Google
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
-          </label>
-          <label style={labelStyle}>
-            Contraseña
-            <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} required style={inputStyle} />
           </label>
           {formError && <p style={{ color: 'var(--brand-danger)', fontSize: 13, margin: 0 }}>{formError}</p>}
           <button type="submit" className="tab-btn" style={{ alignSelf: 'flex-start' }}>
-            Crear usuario
+            Agregar
           </button>
         </form>
       </div>
@@ -74,7 +71,7 @@ export default function UsuariosTab() {
         <p className="empty-msg">{loadError}</p>
       ) : (
         <ul className="usuarios-lista">
-          {usuarios.length === 0 && <li>Todavía no has creado ningún usuario extra.</li>}
+          {usuarios.length === 0 && <li>Todavía no has agregado ningún correo extra.</li>}
           {usuarios.map((u) => (
             <li key={u.email}>
               <span>{u.email}</span>

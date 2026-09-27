@@ -7,8 +7,8 @@ const TABS = [
 ];
 
 export default function TopBar({ tab, onTab, lastUpdate, onRefresh }) {
-  const { logout, isAdmin } = useAuth();
-  const visibleTabs = TABS.filter((t) => !t.adminOnly || isAdmin);
+  const { logout, isSuperAdmin } = useAuth();
+  const visibleTabs = TABS.filter((t) => !t.adminOnly || isSuperAdmin);
 
   return (
     <header className="top-bar">

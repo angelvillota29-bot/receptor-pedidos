@@ -1,21 +1,31 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginScreen() {
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { loginWithGoogle, googleClientId } = useAuth();
+  const btnRef = useRef(null);
   const [error, setError] = useState('');
-  const [sending, setSending] = useState(false);
 
-  const submit = async (e) => {
-    e.preventDefault();
-    setSending(true);
-    setError('');
-    const result = await login(email, password);
-    setSending(false);
-    if (!result.success) setError(result.error);
-  };
+  useEffect(() => {
+    if (!googleClientId) {
+      setError('El login con Google todavía no está configurado en esta app.');
+      return;
+    }
+    if (!window.google?.accounts?.id) {
+      setError('No se pudo cargar el login de Google. Revisa tu conexión e intenta de nuevo.');
+      return;
+    }
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: async (resp) => {
+        const ok = await loginWithGoogle(resp.credential);
+        if (!ok) setError('No se pudo iniciar sesión. Intenta de nuevo.');
+      },
+    });
+    if (btnRef.current) {
+      window.google.accounts.id.renderButton(btnRef.current, { theme: 'outline', size: 'large', width: 260, locale: 'es' });
+    }
+  }, [googleClientId, loginWithGoogle]);
 
   return (
     <div style={overlayStyle}>
@@ -23,21 +33,11 @@ export default function LoginScreen() {
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, marginTop: 0, color: 'var(--brand-text-dark)' }}>
           Iniciar sesión
         </h2>
-        <p style={{ fontSize: 13, color: '#8a7a6a', marginTop: -8 }}>Usa el mismo usuario y contraseña de la página del negocio.</p>
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <label style={labelStyle}>
-            Correo
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
-          </label>
-          <label style={labelStyle}>
-            Contraseña
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={inputStyle} />
-          </label>
-          {error && <p style={{ color: 'var(--brand-danger)', fontSize: 13, margin: 0 }}>{error}</p>}
-          <button type="submit" disabled={sending} style={btnStyle}>
-            {sending ? 'Entrando…' : 'Entrar'}
-          </button>
-        </form>
+        <p style={{ fontSize: 13, color: '#8a7a6a', marginTop: -8 }}>
+          Usa tu cuenta de Google. Solo los correos autorizados por el administrador ven la cola de pedidos.
+        </p>
+        <div ref={btnRef} style={{ display: 'flex', justifyContent: 'center', margin: '14px 0' }} />
+        {error && <p style={{ color: 'var(--brand-danger)', fontSize: 13, margin: 0 }}>{error}</p>}
       </div>
     </div>
   );
@@ -45,17 +45,3 @@ export default function LoginScreen() {
 
 const overlayStyle = { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f6ede0' };
 const cardStyle = { background: '#fff', border: '2px solid var(--brand-card-border)', borderRadius: 16, padding: '28px 32px', width: 340, maxWidth: '90vw' };
-const labelStyle = { fontSize: 13, color: '#6b5a4d', display: 'flex', flexDirection: 'column', gap: 4 };
-const inputStyle = { padding: '9px 10px', borderRadius: 8, border: '1px solid #e2cfb4', background: '#fffdfa', fontSize: 14 };
-const btnStyle = {
-  fontFamily: 'var(--font-display)',
-  fontWeight: 800,
-  fontSize: 14,
-  padding: '10px 20px',
-  borderRadius: 24,
-  border: 'none',
-  cursor: 'pointer',
-  background: 'var(--brand-orange)',
-  color: 'var(--brand-text-dark)',
-  marginTop: 6,
-};

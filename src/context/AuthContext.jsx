@@ -1,77 +1,50 @@
-import { createContext, useContext, useMemo, useState } from 'react';
-import { ownLogin, fetchSiteUsers } from '../lib/api';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { verifyGoogleLogin, fetchSession, logoutSession, getPublicConfig } from '../lib/api';
 
 const AuthContext = createContext(null);
-const ADMIN_EMAIL = 'angelvillota4@gmail.com';
-const ADMIN_PASSWORD = '1234';
-const SESSION_KEY = 'receptor_pedidos_sesion';
-
-function getSesion() {
-  try {
-    return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-  } catch {
-    return null;
-  }
-}
-function setSesionStorage(email) {
-  try {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ email }));
-  } catch {
-    /* modo privado: sigue sin recordar sesión */
-  }
-}
-function clearSesionStorage() {
-  try {
-    localStorage.removeItem(SESSION_KEY);
-  } catch {
-    /* noop */
-  }
-}
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(() => getSesion());
+  const [session, setSession] = useState(null); // { email, role } | null
+  const [googleClientId, setGoogleClientId] = useState('');
+  const [ready, setReady] = useState(false);
 
-  // Admin fijo -> propios usuarios (login.php) -> respaldo: usuarios del sitio.
-  const login = async (emailRaw, password) => {
-    const email = emailRaw.trim().toLowerCase();
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      setSesionStorage(email);
-      setSession({ email });
-      return { success: true };
+  useEffect(() => {
+    Promise.all([fetchSession().catch(() => ({ success: false })), getPublicConfig().catch(() => ({}))]).then(
+      ([sessionRes, cfg]) => {
+        setSession(sessionRes.success ? { email: sessionRes.email, role: sessionRes.role } : null);
+        setGoogleClientId(cfg.googleClientId || '');
+        setReady(true);
+      },
+    );
+  }, []);
+
+  const loginWithGoogle = async (idToken) => {
+    const r = await verifyGoogleLogin(idToken);
+    if (r.success) {
+      setSession({ email: r.email, role: r.role });
+      return true;
     }
-    try {
-      const data = await ownLogin(email, password);
-      if (data.success) {
-        setSesionStorage(email);
-        setSession({ email });
-        return { success: true };
-      }
-    } catch {
-      /* sigue al respaldo del sitio */
-    }
-    try {
-      const data = await fetchSiteUsers();
-      if (data.success) {
-        const users = data.users || [];
-        const match = users.find((u) => (u.email || '').toLowerCase() === email && u.password === password);
-        if (match) {
-          setSesionStorage(email);
-          setSession({ email });
-          return { success: true };
-        }
-      }
-    } catch {
-      /* cae al error genérico */
-    }
-    return { success: false, error: 'Correo o contraseña incorrectos.' };
+    return false;
   };
 
-  const logout = () => {
-    clearSesionStorage();
+  const logout = async () => {
+    await logoutSession().catch(() => {});
     setSession(null);
   };
 
-  const value = useMemo(() => ({ session, login, logout, isAdmin: session?.email === ADMIN_EMAIL }), [session]);
+  const value = useMemo(() => {
+    const role = session?.role || null;
+    return {
+      user: session?.email || null,
+      role,
+      hasAccess: role === 'admin' || role === 'superadmin',
+      isSuperAdmin: role === 'superadmin',
+      googleClientId,
+      ready,
+      loginWithGoogle,
+      logout,
+    };
+  }, [session, googleClientId, ready]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

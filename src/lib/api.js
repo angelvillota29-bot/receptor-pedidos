@@ -20,27 +20,35 @@ export async function fetchHistorial() {
   return res.json();
 }
 
-export async function fetchSiteUsers() {
-  const res = await fetch('api/proxy-users.php');
-  return res.json();
-}
-
-export async function ownLogin(email, password) {
-  const res = await fetch('api/login.php', {
+export async function verifyGoogleLogin(idToken) {
+  const res = await fetch('api/verify-google.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ idToken }),
   });
   return res.json();
 }
 
-const ADMIN_PASSWORD = '1234';
+export async function fetchSession() {
+  const res = await fetch('api/me.php', { cache: 'no-store' });
+  return res.json();
+}
+
+export async function logoutSession() {
+  const res = await fetch('api/logout.php', { method: 'POST' });
+  return res.json();
+}
+
+export async function getPublicConfig() {
+  const res = await fetch('api/public-config.php');
+  return res.json();
+}
 
 export async function usuariosApi(body) {
   const res = await fetch('api/usuarios.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ adminPassword: ADMIN_PASSWORD, ...body }),
+    body: JSON.stringify(body),
   });
   return res.json();
 }
