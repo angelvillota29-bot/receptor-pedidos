@@ -1,15 +1,13 @@
 <?php
-// Crear/listar/eliminar los usuarios PROPIOS de este Receptor de Pedidos.
-// Solo el admin fijo puede hacerlo -- esta app no tiene sesión de servidor,
-// así que la contraseña del admin viaja en cada llamada (ya vive en claro en
-// script.js de todas formas: es una herramienta interna, no algo público).
+// Crear/listar/eliminar los correos con acceso a este Receptor de Pedidos --
+// ahora protegido por la sesión de superadmin (antes viajaba una contraseña
+// fija en cada llamada).
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+require_once __DIR__ . '/_auth.php';
+requireRole('superadmin');
 
-const ADMIN_EMAIL = 'angelvillota4@gmail.com';
-const ADMIN_PASSWORD = '1234';
-
-$file = __DIR__ . '/../data/usuarios_receptor.json';
+$file = dirname(__DIR__) . '/data/usuarios_receptor.json';
 
 function cargarUsuarios($file) {
     if (!file_exists($file)) return [];
@@ -23,13 +21,6 @@ function guardarUsuarios($file, $usuarios) {
 }
 
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
-
-if (($input['adminPassword'] ?? '') !== ADMIN_PASSWORD) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'No autorizado']);
-    exit;
-}
-
 $accion = $input['accion'] ?? 'listar';
 $usuarios = cargarUsuarios($file);
 
@@ -40,10 +31,9 @@ if ($accion === 'listar') {
 
 if ($accion === 'crear') {
     $email = trim(strtolower($input['email'] ?? ''));
-    $password = (string) ($input['password'] ?? '');
-    if ($email === '' || $password === '') {
+    if ($email === '') {
         http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Falta correo o contraseña']);
+        echo json_encode(['success' => false, 'error' => 'Falta el correo']);
         exit;
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -51,13 +41,13 @@ if ($accion === 'crear') {
         echo json_encode(['success' => false, 'error' => 'Correo inválido']);
         exit;
     }
-    if ($email === strtolower(ADMIN_EMAIL)) {
+    if ($email === SUPREME_ADMIN_EMAIL) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'Ese correo ya es el del admin']);
         exit;
     }
     $usuarios = array_values(array_filter($usuarios, fn($u) => strtolower($u['email'] ?? '') !== $email));
-    $usuarios[] = ['email' => $email, 'password' => $password];
+    $usuarios[] = ['email' => $email];
     guardarUsuarios($file, $usuarios);
     echo json_encode(['success' => true]);
     exit;

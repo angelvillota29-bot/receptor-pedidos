@@ -9,3 +9,7 @@
 # Basura común de editor / sistema operativo
 .DS_Store
 Thumbs.db
+
+# Build de la SPA de React
+node_modules/
+dist/

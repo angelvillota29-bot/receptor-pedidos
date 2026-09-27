@@ -3,6 +3,8 @@
 // la API Key del lado del servidor -- el navegador nunca ve esa llave.
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+require_once __DIR__ . '/_auth.php';
+requireRole('admin');
 
 $baseUrl = getenv('RESTAURANTE_API_URL');
 $apiKey = getenv('RESTAURANTE_API_KEY');
