@@ -1,0 +1,190 @@
+@import './tokens.css';
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--brand-dark);
+  padding: 12px 20px;
+}
+.brand-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: #fff;
+  font-size: 18px;
+  margin: 0;
+}
+.tabs {
+  display: flex;
+  gap: 6px;
+}
+.tab-btn {
+  background: transparent;
+  border: 1.5px solid var(--brand-orange-deep);
+  color: #e8b98a;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.tab-btn.active {
+  background: var(--brand-orange);
+  color: var(--brand-text-dark);
+  border-color: var(--brand-orange);
+}
+
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  padding: 20px;
+}
+
+.ticket {
+  background: #fff;
+  border: 1.5px solid var(--brand-card-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(42, 18, 0, 0.06);
+}
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--brand-orange-deep);
+  font-size: 13px;
+}
+.ticket-client {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+.ticket-tipo-entrega {
+  font-weight: 700;
+  color: var(--brand-text-dark);
+}
+.ticket-nota {
+  color: var(--brand-danger);
+  font-style: italic;
+}
+.ticket-items {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  border-top: 1px dashed var(--brand-card-border);
+  border-bottom: 1px dashed var(--brand-card-border);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.ticket-total {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--brand-text-dark);
+  font-size: 15px;
+}
+.ticket-actions {
+  display: flex;
+  gap: 8px;
+}
+.ticket-actions button {
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-print {
+  background: var(--brand-card-tint);
+  color: var(--brand-orange-deep);
+}
+.btn-delete {
+  background: #fbe8e5;
+  color: var(--brand-danger);
+}
+
+.historial-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 20px 20px 0;
+  font-size: 13px;
+}
+.historial-total {
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+.historial-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 20px;
+  font-size: 13px;
+  background: #fff;
+}
+.historial-tabla th,
+.historial-tabla td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--brand-card-border);
+}
+.historial-tabla th {
+  font-family: var(--font-display);
+  color: var(--brand-orange-deep);
+}
+
+.usuarios-lista {
+  list-style: none;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+}
+.usuarios-lista li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--brand-card-border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.config-warning {
+  background: #fdeceb;
+  color: var(--brand-danger);
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.empty-msg {
+  padding: 40px 20px;
+  text-align: center;
+  color: #a68f78;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tabs {
+    justify-content: center;
+  }
+}

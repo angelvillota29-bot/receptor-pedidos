@@ -1,0 +1,36 @@
+:root {
+  --brand-cream: #fff8ef;
+  --brand-dark: #1f1410;
+  --brand-dark-2: #2a1c15;
+  --brand-orange: #ff7a1a;
+  --brand-orange-deep: #d9772e;
+  --brand-gold: #f5b74a;
+  --brand-card-border: #f0dcc5;
+  --brand-card-tint: #fff2e2;
+  --brand-text-dark: #2a1200;
+  --brand-danger: #d33a2c;
+  --brand-success: #1a7a3d;
+
+  --font-display: 'Baloo 2', cursive;
+  --font-sans: 'Manrope', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #f6ede0;
+  color: var(--brand-text-dark);
+  font-family: var(--font-sans);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
