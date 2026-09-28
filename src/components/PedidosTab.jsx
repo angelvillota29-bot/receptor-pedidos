@@ -35,16 +35,16 @@ export default function PedidosTab({ onLastUpdate, refreshSignal }) {
   }, [refreshSignal]);
 
   const onDelete = async (id) => {
-    if (!confirm('¿Eliminar este ticket? Ya no se podrá recuperar.')) return;
+    if (!confirm('¿Marcar este pedido como despachado? Se quita de la cola, pero queda guardado en el Historial.')) return;
     try {
       const data = await deleteOrder(id);
       if (data.success) {
         setOrders((prev) => prev.filter((o) => o.id != id));
       } else {
-        alert('No se pudo eliminar: ' + (data.error || 'error desconocido'));
+        alert('No se pudo despachar: ' + (data.error || 'error desconocido'));
       }
     } catch {
-      alert('No se pudo eliminar el ticket, intenta de nuevo.');
+      alert('No se pudo despachar el pedido, intenta de nuevo.');
     }
   };
 
