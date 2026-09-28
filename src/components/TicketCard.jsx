@@ -28,7 +28,7 @@ export default function TicketCard({ order, onDelete }) {
           🖨️ Imprimir
         </button>
         <button className="btn-delete" onClick={() => onDelete(order.id)}>
-          🗑️ Eliminar
+          📦 Despachar
         </button>
       </div>
     </article>
