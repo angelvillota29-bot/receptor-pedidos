@@ -9,14 +9,13 @@ function escapeHtml(s) {
 // usándose en pantalla (TicketCard/format.js), esto es solo para imprimir.
 const TIPO_ENTREGA_PLANO = { domicilio: 'A domicilio', recoger: 'Para recoger', comer_aqui: 'Comer aqui' };
 
-// Ticket pensado para impresora térmica de 58mm (probado en DIG-C58):
-// - Contenido angosto (40mm) y con buen margen a la derecha: el rollo mide
-//   58mm pero el driver de Windows le mete SUS PROPIOS márgenes por encima
-//   de lo que definamos aquí, así que dejamos harto colchón en vez de
-//   calcular al milímetro -- mejor que sobre espacio a que se corte un dígito.
-// - Sin barras ni fondos rellenos: todo el texto es negro plano sobre
-//   blanco (una térmica no imprime "color", solo negrita/tamaño para dar
-//   énfasis).
+// Ticket pensado para impresora térmica (probado en DIG-C58): medido con
+// regla por el dueño -- la hoja real mide 56mm (no 58mm) y el driver de
+// Windows le mete 5mm de margen propios a cada lado por encima de lo que
+// definamos aquí. Usamos 6mm (5mm medidos + 1mm de colchón) para que nunca
+// vuelva a cortarse un dígito, dejando 44mm de ancho útil.
+// Sin barras ni fondos rellenos: todo el texto es negro plano sobre blanco
+// (una térmica no imprime "color", solo negrita/tamaño para dar énfasis).
 export function imprimirTicket(o) {
   const itemsHtml = (o.items || [])
     .map(
@@ -31,17 +30,17 @@ export function imprimirTicket(o) {
   win.document.write(`<!DOCTYPE html><html><head><title>Ticket #${o.id}</title>
     <meta name="color-scheme" content="light">
     <style>
-      @page { size: 58mm auto; margin: 0; }
+      @page { size: 56mm auto; margin: 0; }
       html,body{background:#fff !important; height:auto !important; margin:0;}
       body{
         font-family: Arial, Helvetica, sans-serif;
         font-size: 12px;
         line-height: 1.4;
         color:#000;
-        width: 40mm;
+        width: 56mm;
         margin: 0;
         box-sizing: border-box;
-        padding: 3mm 6mm 8mm 2mm;
+        padding: 3mm 6mm 8mm 6mm;
       }
       .marca{ text-align:center; font-weight:800; font-size:15px; text-transform:uppercase; letter-spacing:0.5px; color:#000; }
       .subtitulo{ text-align:center; font-size:10px; font-weight:700; color:#000; margin-bottom:2mm; }
