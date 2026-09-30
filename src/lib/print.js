@@ -4,9 +4,13 @@ function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-// Ticket pensado para impresora térmica de 58mm (probado en DIG-C58): ancho
-// fijo, tipografía sans-serif (se ve mejor que monospace en estas impresoras)
-// y cada renglón opcional (teléfono, dirección, nota) solo aparece si hay dato.
+// Ticket pensado para impresora térmica de 58mm (probado en DIG-C58):
+// - Ancho de contenido de 48mm (no 58mm) alineado a la izquierda: el rollo
+//   mide 58mm pero el cabezal solo imprime ~48mm empezando desde el borde
+//   izquierdo -- usar los 58mm completos cortaba el último carácter de la
+//   derecha (ej. el $55.000 salía como $55.00).
+// - Como una térmica solo pinta en negro (no hay "color" posible), la
+//   intensidad se logra con barras sólidas en negro + negrita, no con tonos.
 export function imprimirTicket(o) {
   const itemsHtml = (o.items || [])
     .map(
@@ -26,31 +30,43 @@ export function imprimirTicket(o) {
       body{
         font-family: Arial, Helvetica, sans-serif;
         font-size: 12px;
-        line-height: 1.35;
+        line-height: 1.4;
         color:#000;
-        width: 58mm;
+        width: 48mm;
+        margin: 0;
         box-sizing: border-box;
-        padding: 3mm 3mm 6mm;
+        padding: 3mm 1mm 6mm;
       }
-      .marca{ text-align:center; font-weight:800; font-size:15px; text-transform:uppercase; letter-spacing:0.5px; }
-      .subtitulo{ text-align:center; font-size:10px; color:#333; margin-bottom:2mm; }
-      .fila{ display:flex; justify-content:space-between; gap:6px; }
-      .tipo-entrega{ font-weight:700; font-size:13px; text-align:center; margin:2mm 0; }
-      .linea{ border-top:1px dashed #000; margin:2mm 0; }
-      .cliente strong{ font-size:13px; }
-      .cliente div{ font-size:12px; }
-      .nota{ font-style:italic; }
+      .marca-bar{
+        background:#000; color:#fff;
+        text-align:center; font-weight:800; font-size:16px;
+        text-transform:uppercase; letter-spacing:0.5px;
+        padding:2mm 0; margin-bottom:2mm;
+      }
+      .subtitulo{ text-align:center; font-size:10px; font-weight:700; margin-bottom:2mm; }
+      .fila{ display:flex; justify-content:space-between; gap:4px; }
+      .tipo-entrega{
+        font-weight:800; font-size:14px; text-align:center;
+        border:1.5px solid #000; border-radius:3px; padding:1.5mm 0; margin:2mm 0;
+      }
+      .linea{ border-top:2px solid #000; margin:2mm 0; }
+      .cliente strong{ font-size:14px; font-weight:800; }
+      .cliente div{ font-size:12px; font-weight:600; }
+      .nota{ font-style:italic; font-weight:700; }
       .items{ margin-top:1mm; }
-      .item{ display:flex; justify-content:space-between; gap:6px; font-size:12px; padding:0.5mm 0; }
+      .item{ display:flex; justify-content:space-between; gap:4px; font-size:12.5px; font-weight:600; padding:0.8mm 0; }
       .item-nombre{ flex:1; }
-      .item-precio{ white-space:nowrap; }
-      .total{ font-weight:800; font-size:15px; }
-      .pago{ font-size:11px; color:#333; }
-      .gracias{ text-align:center; font-size:11px; margin-top:3mm; }
+      .item-precio{ white-space:nowrap; font-weight:800; }
+      .total-bar{
+        background:#000; color:#fff; display:flex; justify-content:space-between;
+        font-weight:800; font-size:16px; padding:2mm; margin-top:2mm; gap:4px;
+      }
+      .pago{ font-size:11.5px; font-weight:700; margin-top:2mm; text-align:center; }
+      .gracias{ text-align:center; font-size:12px; font-weight:800; margin-top:3mm; }
       .btn-cerrar{ margin-top:5mm; width:100%; padding:8px; font-size:14px; cursor:pointer; }
       @media print { .btn-cerrar{ display:none; } }
     </style></head><body>
-    <div class="marca">The Club Housse</div>
+    <div class="marca-bar">The Club Housse</div>
     <div class="subtitulo">Pedido #${String(o.id).slice(-6)} &middot; ${formatoHora(o.createdAt)}</div>
     <div class="tipo-entrega">${escapeHtml(TIPO_ENTREGA_LABEL[o.tipoEntrega] || o.tipoEntrega || '')}</div>
     <div class="linea"></div>
@@ -62,8 +78,7 @@ export function imprimirTicket(o) {
     </div>
     <div class="linea"></div>
     <div class="items">${itemsHtml}</div>
-    <div class="linea"></div>
-    <div class="fila total"><span>Total</span><span>${formatoCOP(o.total)}</span></div>
+    <div class="total-bar"><span>TOTAL</span><span>${formatoCOP(o.total)}</span></div>
     <div class="pago">Pago: ${escapeHtml(PAGO_LABEL[o.metodoPago] || o.metodoPago || '')}</div>
     <div class="gracias">¡Gracias por tu compra!</div>
     <button class="btn-cerrar" onclick="window.close()">Cerrar esta ventana</button>
