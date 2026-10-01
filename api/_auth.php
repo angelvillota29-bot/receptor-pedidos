@@ -23,7 +23,17 @@ function esAdminProtegido($email) {
 }
 
 function sessionSecret() {
-    return getenv('SESSION_SECRET') ?: 'receptor-dev-secret-cambia-esto-en-easypanel';
+    $secret = getenv('SESSION_SECRET');
+    if (!$secret) {
+        // No hay fallback: firmar/verificar sesiones con un secreto que
+        // cualquiera puede leer en el código fuente público permitiría
+        // forjar cookies de superadmin. Fallamos cerrado hasta que se
+        // provisione un secreto real en el entorno.
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Configuración del servidor incompleta: falta SESSION_SECRET.']);
+        exit;
+    }
+    return $secret;
 }
 
 function issueSession($email, $role) {
