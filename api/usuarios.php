@@ -25,7 +25,7 @@ $accion = $input['accion'] ?? 'listar';
 $usuarios = cargarUsuarios($file);
 
 if ($accion === 'listar') {
-    echo json_encode(['success' => true, 'usuarios' => array_map(fn($u) => ['email' => $u['email']], $usuarios)]);
+    echo json_encode(['success' => true, 'usuarios' => array_map(fn($u) => ['email' => $u['email'], 'protegido' => esAdminProtegido($u['email'])], $usuarios)]);
     exit;
 }
 
@@ -55,6 +55,11 @@ if ($accion === 'crear') {
 
 if ($accion === 'eliminar') {
     $email = trim(strtolower($input['email'] ?? ''));
+    if (esAdminProtegido($email)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Este administrador está protegido y no se puede eliminar']);
+        exit;
+    }
     $usuarios = array_values(array_filter($usuarios, fn($u) => strtolower($u['email'] ?? '') !== $email));
     guardarUsuarios($file, $usuarios);
     echo json_encode(['success' => true]);

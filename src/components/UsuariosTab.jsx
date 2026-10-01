@@ -74,10 +74,17 @@ export default function UsuariosTab() {
           {usuarios.length === 0 && <li>Todavía no has agregado ningún correo extra.</li>}
           {usuarios.map((u) => (
             <li key={u.email}>
-              <span>{u.email}</span>
-              <button className="btn-delete" style={{ borderRadius: 8, padding: '4px 10px', fontSize: 12 }} onClick={() => eliminar(u.email)}>
-                Eliminar
-              </button>
+              <span>
+                {u.email}
+                {u.protegido && <span style={{ marginLeft: 6, fontSize: 11, color: '#8a7a6a' }}>(protegido)</span>}
+              </span>
+              {u.protegido ? (
+                <span style={{ fontSize: 12, color: '#8a7a6a' }}>No se puede eliminar</span>
+              ) : (
+                <button className="btn-delete" style={{ borderRadius: 8, padding: '4px 10px', fontSize: 12 }} onClick={() => eliminar(u.email)}>
+                  Eliminar
+                </button>
+              )}
             </li>
           ))}
         </ul>

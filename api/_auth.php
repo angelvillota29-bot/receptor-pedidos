@@ -10,6 +10,17 @@ const SESSION_COOKIE = 'receptor_session';
 const SESSION_TTL = 60 * 60 * 24 * 30; // 30 días
 const SUPREME_ADMIN_EMAIL = 'angelvillota4@gmail.com';
 const ROLE_LEVEL = ['cliente' => 1, 'admin' => 2, 'superadmin' => 3];
+// Administradores que no se pueden eliminar desde el panel de Usuarios (ni
+// por error ni a propósito) -- el superadmin sigue pudiendo agregar/quitar
+// a cualquier otro admin normal, solo estos correos quedan fijos.
+const PROTECTED_ADMIN_EMAILS = ['stekim.18@gmail.com'];
+
+function esAdminProtegido($email) {
+    foreach (PROTECTED_ADMIN_EMAILS as $protegido) {
+        if (strtolower($email) === strtolower($protegido)) return true;
+    }
+    return false;
+}
 
 function sessionSecret() {
     return getenv('SESSION_SECRET') ?: 'receptor-dev-secret-cambia-esto-en-easypanel';
