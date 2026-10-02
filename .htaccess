@@ -10,3 +10,9 @@ FallbackResource /index.html
     Header set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
 </IfModule>
+
+# Archivos de despliegue/configuración que nunca deben descargarse por la web
+# (antes /entrypoint.sh se podía bajar tal cual desde cualquier navegador).
+<FilesMatch "\.(sh|ini|md|dockerfile)$|^Dockerfile$">
+    Require all denied
+</FilesMatch>
