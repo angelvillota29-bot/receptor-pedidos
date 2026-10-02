@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 const TABS = [
   { key: 'pedidos', label: 'Pedidos' },
   { key: 'historial', label: 'Historial' },
+  { key: 'analiticas', label: 'Analíticas' },
   { key: 'usuarios', label: 'Usuarios', adminOnly: true },
 ];
 

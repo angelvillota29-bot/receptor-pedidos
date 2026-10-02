@@ -23,3 +23,15 @@ export function hoyISO() {
 export const CANAL_LABEL = { whatsapp: 'WhatsApp', telegram: 'Telegram', chat_web: 'Chat del sitio', pagina: 'Carrito de la página' };
 export const TIPO_ENTREGA_LABEL = { domicilio: '🛵 A domicilio', recoger: '🏪 Para recoger', comer_aqui: '🍽️ Comer aquí' };
 export const PAGO_LABEL = { efectivo: 'Efectivo', nequi: 'Nequi' };
+
+export function horaDelDia(ms) {
+  return Number(new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', hourCycle: 'h23' }).format(ms));
+}
+
+export function diaDeSemana(ms) {
+  return new Date(ms).toLocaleDateString('es-CO', { timeZone: TZ, weekday: 'long' });
+}
+
+export function fechaISOHaceDias(dias) {
+  return formatoFechaISO(Date.now() - dias * 86400000);
+}

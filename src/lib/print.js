@@ -9,6 +9,31 @@ function escapeHtml(s) {
 // usándose en pantalla (TicketCard/format.js), esto es solo para imprimir.
 const TIPO_ENTREGA_PLANO = { domicilio: 'A domicilio', recoger: 'Para recoger', comer_aqui: 'Comer aqui' };
 
+// Imprime dentro de un iframe invisible de la MISMA página, en vez de abrir
+// otra pestaña/ventana: antes quedaba una hoja blanca gigante con el ticket
+// detrás del diálogo de impresión y había que cerrarla a mano. Aquí el panel
+// sigue a la vista y solo aparece el diálogo de impresión.
+function imprimirHtmlOculto(html) {
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('aria-hidden', 'true');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none;';
+  document.body.appendChild(iframe);
+  const quitar = () => {
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+  };
+  const w = iframe.contentWindow;
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.onafterprint = () => setTimeout(quitar, 500);
+  setTimeout(() => {
+    w.focus();
+    w.print();
+  }, 150);
+  // Respaldo por si el navegador nunca avisa que terminó de imprimir.
+  setTimeout(quitar, 10 * 60 * 1000);
+}
+
 // Ticket pensado para impresora térmica (probado en DIG-C58): medido con
 // regla por el dueño -- la hoja real mide 56mm (no 58mm) y el driver de
 // Windows le mete 5mm de margen propios a cada lado por encima de lo que
@@ -25,9 +50,7 @@ export function imprimirTicket(o) {
       </div>`
     )
     .join('');
-  const win = window.open('', '_blank');
-  if (!win) return;
-  win.document.write(`<!DOCTYPE html><html><head><title>Ticket #${o.id}</title>
+  imprimirHtmlOculto(`<!DOCTYPE html><html><head><title>Ticket #${o.id}</title>
     <meta name="color-scheme" content="light">
     <style>
       @page { size: 56mm auto; margin: 0; }
@@ -56,8 +79,6 @@ export function imprimirTicket(o) {
       .total{ display:flex; justify-content:space-between; font-weight:800; font-size:15px; color:#000; border-top:1.5px solid #000; padding-top:2mm; margin-top:2mm; }
       .pago{ font-size:11px; font-weight:700; color:#000; margin-top:2mm; text-align:center; }
       .gracias{ text-align:center; font-size:11px; font-weight:800; color:#000; margin-top:3mm; }
-      .btn-cerrar{ margin-top:5mm; width:100%; padding:8px; font-size:14px; cursor:pointer; }
-      @media print { .btn-cerrar{ display:none; } }
     </style></head><body>
     <div class="marca">The Club Housse</div>
     <div class="subtitulo">Pedido #${String(o.id).slice(-6)} &middot; ${formatoHora(o.createdAt)}</div>
@@ -74,16 +95,5 @@ export function imprimirTicket(o) {
     <div class="total"><span>Total</span><span>${formatoCOP(o.total)}</span></div>
     <div class="pago">Pago: ${escapeHtml(PAGO_LABEL[o.metodoPago] || o.metodoPago || '')}</div>
     <div class="gracias">Gracias por tu compra</div>
-    <button class="btn-cerrar" onclick="window.close()">Cerrar esta ventana</button>
     </body></html>`);
-  win.document.close();
-  win.focus();
-  win.onafterprint = () => {
-    try {
-      win.close();
-    } catch {
-      /* ya se cerró */
-    }
-  };
-  setTimeout(() => win.print(), 150);
 }

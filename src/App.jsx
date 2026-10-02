@@ -4,6 +4,7 @@ import LoginScreen from './components/LoginScreen';
 import TopBar from './components/TopBar';
 import PedidosTab from './components/PedidosTab';
 import HistorialTab from './components/HistorialTab';
+import AnaliticasTab from './components/AnaliticasTab';
 import UsuariosTab from './components/UsuariosTab';
 
 export default function App() {
@@ -39,6 +40,7 @@ export default function App() {
         <PedidosTab onLastUpdate={setLastUpdate} refreshSignal={refreshSignal} />
       </div>
       {tab === 'historial' && <HistorialTab />}
+      {tab === 'analiticas' && <AnaliticasTab />}
       {tab === 'usuarios' && <UsuariosTab />}
     </div>
   );

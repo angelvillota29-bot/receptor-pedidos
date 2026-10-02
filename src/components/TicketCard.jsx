@@ -1,7 +1,9 @@
 import { formatoCOP, formatoHora, TIPO_ENTREGA_LABEL } from '../lib/format';
 import { imprimirTicket } from '../lib/print';
 
-export default function TicketCard({ order, onDelete }) {
+export default function TicketCard({ order, onDelete, onConfirmarPago }) {
+  // Los pedidos anteriores a esta función no traen la marca: cuentan como pagados.
+  const pagado = order.pagoConfirmado !== false;
   return (
     <article className="ticket">
       <div className="ticket-header">
@@ -27,9 +29,16 @@ export default function TicketCard({ order, onDelete }) {
         <button className="btn-print" onClick={() => imprimirTicket(order)}>
           🖨️ Imprimir
         </button>
-        <button className="btn-delete" onClick={() => onDelete(order.id)}>
+        <button className="btn-delete" onClick={() => onDelete(order)}>
           📦 Despachar
         </button>
+        {pagado ? (
+          <div className="pago-confirmado">✔ Pago confirmado</div>
+        ) : (
+          <button className="btn-confirmar" onClick={() => onConfirmarPago(order.id)}>
+            ✅ Confirmar pago
+          </button>
+        )}
       </div>
     </article>
   );

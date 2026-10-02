@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { fetchHistorial, gastosApi } from '../lib/api';
+import { fetchHistorial, gastosApi, confirmarPago } from '../lib/api';
 import { formatoCOP, formatoHoraCorta, formatoFechaISO, hoyISO, CANAL_LABEL, PAGO_LABEL } from '../lib/format';
 
 export default function HistorialTab() {
@@ -39,8 +39,25 @@ export default function HistorialTab() {
     cargarGastos();
   }, []);
 
-  const delDia = useMemo(() => pedidos.filter((p) => formatoFechaISO(p.createdAt) === fecha), [pedidos, fecha]);
+  // Solo cuentan como venta los pedidos con el pago confirmado (los anteriores
+  // a esta función no traen la marca y cuentan como confirmados).
+  const todosDelDia = useMemo(() => pedidos.filter((p) => formatoFechaISO(p.createdAt) === fecha), [pedidos, fecha]);
+  const delDia = useMemo(() => todosDelDia.filter((p) => p.pagoConfirmado !== false), [todosDelDia]);
+  const sinConfirmar = useMemo(() => todosDelDia.filter((p) => p.pagoConfirmado === false), [todosDelDia]);
   const totalVentas = delDia.reduce((acc, p) => acc + (p.total || 0), 0);
+
+  const confirmarDesdeHistorial = async (id) => {
+    try {
+      const data = await confirmarPago(id);
+      if (!data.success) {
+        alert('No se pudo confirmar el pago: ' + (data.error || 'error desconocido'));
+        return;
+      }
+      cargarPedidos();
+    } catch {
+      alert('No se pudo confirmar el pago, intenta de nuevo.');
+    }
+  };
 
   const gastosDelDia = useMemo(() => gastos.filter((g) => g.fecha === fecha), [gastos, fecha]);
   const totalGastos = gastosDelDia.reduce((acc, g) => acc + (g.monto || 0), 0);
@@ -110,9 +127,6 @@ export default function HistorialTab() {
         <label>
           Día: <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
         </label>
-        <button className="tab-btn" onClick={() => window.print()}>
-          🖨️ Imprimir
-        </button>
         <button className="tab-btn" onClick={descargarCsv}>
           ⬇️ Descargar CSV
         </button>
@@ -138,7 +152,7 @@ export default function HistorialTab() {
         <>
           <h3 className="historial-subtitulo">Pedidos ({delDia.length})</h3>
           {delDia.length === 0 ? (
-            <p className="empty-msg">No hay pedidos registrados ese día.</p>
+            <p className="empty-msg">No hay pedidos con pago confirmado ese día.</p>
           ) : (
             <table className="historial-tabla">
               <thead>
@@ -163,6 +177,39 @@ export default function HistorialTab() {
               </tbody>
             </table>
           )}
+        </>
+      )}
+
+      {!error && sinConfirmar.length > 0 && (
+        <>
+          <h3 className="historial-subtitulo">Sin pago confirmado ({sinConfirmar.length})</h3>
+          <p className="historial-aviso">Estos pedidos no cuentan como venta hasta que confirmes el pago.</p>
+          <table className="historial-tabla">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Cliente</th>
+                <th>Pago</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {sinConfirmar.map((p) => (
+                <tr key={p.id}>
+                  <td>{formatoHoraCorta(p.createdAt)}</td>
+                  <td>{p.cliente?.nombre || ''}</td>
+                  <td>{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
+                  <td>{formatoCOP(p.total)}</td>
+                  <td>
+                    <button className="btn-confirmar-mini" onClick={() => confirmarDesdeHistorial(p.id)}>
+                      ✅ Confirmar pago
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </>
       )}
 

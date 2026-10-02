@@ -15,6 +15,15 @@ export async function deleteOrder(id) {
   return res.json();
 }
 
+export async function confirmarPago(id) {
+  const res = await fetch('api/proxy-confirmar-pago.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  });
+  return res.json();
+}
+
 export async function fetchHistorial() {
   const res = await fetch('api/proxy-historial.php');
   return res.json();
