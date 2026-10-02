@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchHistorial, gastosApi, confirmarPago } from '../lib/api';
 import { formatoCOP, formatoHoraCorta, formatoFechaISO, hoyISO, CANAL_LABEL, PAGO_LABEL } from '../lib/format';
+import { generarReporteExcel, rangoDelMes, nombreArchivo } from '../lib/reporteExcel';
 
 function estadoPago(p) {
   if (p.pagoConfirmado === false) return 'Pendiente';
@@ -16,6 +17,7 @@ export default function HistorialTab() {
   const [gastoDescripcion, setGastoDescripcion] = useState('');
   const [gastoMonto, setGastoMonto] = useState('');
   const [gastoError, setGastoError] = useState('');
+  const [generando, setGenerando] = useState('');
 
   const cargarPedidos = async () => {
     try {
@@ -97,35 +99,30 @@ export default function HistorialTab() {
     cargarGastos();
   };
 
-  const descargarCsv = () => {
-    const filas = [['Hora', 'Cliente', 'Telefono', 'Canal', 'Metodo de pago', 'Total', 'Estado del pago', 'Confirmado por', 'Despachado']];
-    for (const p of delDia) {
-      filas.push([formatoHoraCorta(p.createdAt), p.cliente?.nombre || '', p.cliente?.telefono || '', CANAL_LABEL[p.canal] || p.canal || '', PAGO_LABEL[p.metodoPago] || p.metodoPago || '', String(p.total || 0), estadoPago(p).replace('✔ ', ''), p.pagoConfirmadoPor || '', p.despachadoAt ? formatoHoraCorta(p.despachadoAt) : '']);
+  const mes = rangoDelMes(fecha);
+
+  // Reporte en Excel (varias hojas con formato). "dia" = solo la fecha elegida;
+  // "mes" = del 1 al último día del mes de la fecha elegida (28, 29, 30 o 31).
+  const descargarExcel = async (alcance) => {
+    const desde = alcance === 'mes' ? mes.desde : fecha;
+    const hasta = alcance === 'mes' ? mes.hasta : fecha;
+    setGenerando(alcance);
+    try {
+      const blob = await generarReporteExcel({ pedidos, gastos, desde, hasta });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombreArchivo(desde, hasta);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch (e) {
+      console.error(e);
+      alert('No se pudo generar el Excel, intenta de nuevo.');
+    } finally {
+      setGenerando('');
     }
-    filas.push([]);
-    filas.push(['', '', '', '', 'Total ventas', String(totalVentas)]);
-    filas.push([]);
-    filas.push(['Gasto', '', '', '', '', 'Monto']);
-    for (const g of gastosDelDia) {
-      filas.push([g.descripcion, '', '', '', '', String(g.monto || 0)]);
-    }
-    filas.push([]);
-    filas.push(['', '', '', '', 'Total gastos', String(totalGastos)]);
-    filas.push(['', '', '', '', 'Ganancia del día', String(ganancia)]);
-    // Si un texto (nombre, teléfono...) empieza con = + - @ Excel lo trataría como
-    // una fórmula; se le antepone ' para que se vea como texto y no se ejecute.
-    const celda = (c) => {
-      const s = String(c);
-      return typeof c === 'string' && /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
-    };
-    const csv = filas.map((f) => f.map((c) => `"${celda(c).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pedidos-${fecha}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -139,8 +136,11 @@ export default function HistorialTab() {
         <label>
           Día: <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
         </label>
-        <button className="tab-btn" onClick={descargarCsv}>
-          ⬇️ Descargar CSV
+        <button className="tab-btn" onClick={() => descargarExcel('dia')} disabled={!!generando}>
+          {generando === 'dia' ? 'Generando…' : '⬇️ Excel del día'}
+        </button>
+        <button className="tab-btn" onClick={() => descargarExcel('mes')} disabled={!!generando} title={`Del ${mes.desde} al ${mes.hasta}`}>
+          {generando === 'mes' ? 'Generando…' : `⬇️ Excel del mes completo (${mes.nombre}, 1–${mes.ultimo})`}
         </button>
       </div>
 
