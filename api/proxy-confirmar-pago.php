@@ -6,6 +6,7 @@
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_once __DIR__ . '/_auth.php';
+requirePostSameOrigin();
 $session = requireRole('admin');
 
 $baseUrl = getenv('RESTAURANTE_API_URL');

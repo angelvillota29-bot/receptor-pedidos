@@ -6,6 +6,7 @@
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_once __DIR__ . '/_auth.php';
+requirePostSameOrigin();
 requireRole('admin');
 
 $file = dirname(__DIR__) . '/data/gastos.json';
@@ -18,7 +19,7 @@ function cargarGastos($file) {
 
 function guardarGastos($file, $gastos) {
     if (!is_dir(dirname($file))) mkdir(dirname($file), 0775, true);
-    file_put_contents($file, json_encode($gastos));
+    file_put_contents($file, json_encode($gastos), LOCK_EX);
 }
 
 $input = json_decode(file_get_contents('php://input'), true) ?: [];

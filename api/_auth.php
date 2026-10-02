@@ -60,7 +60,37 @@ function readSession() {
     if (!hash_equals(hash_hmac('sha256', $b64, sessionSecret()), $sig)) return null;
     $payload = json_decode(base64_decode(strtr($b64, '-_', '+/')), true);
     if (!$payload || ($payload['exp'] ?? 0) < time()) return null;
+    // La cookie firmada solo prueba QUIÉN es la persona; el rol se recalcula
+    // en cada petición con la lista actual de usuarios. Así, si se quita a un
+    // administrador, pierde el acceso de inmediato y no hasta que caduque la
+    // cookie (30 días).
+    $payload['role'] = resolveRole((string) ($payload['email'] ?? ''));
     return $payload;
+}
+
+// Para endpoints que cambian datos con la cookie de sesión: solo POST y solo
+// si la petición viene de nuestra propia página (anti-CSRF).
+function requirePostSameOrigin() {
+    $fallo = function ($code, $msg) {
+        http_response_code($code);
+        echo json_encode(['success' => false, 'error' => $msg]);
+        exit;
+    };
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        header('Allow: POST');
+        $fallo(405, 'Método no permitido');
+    }
+    $sfs = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if ($sfs !== '') {
+        if ($sfs !== 'same-origin' && $sfs !== 'none') $fallo(403, 'Petición de origen no permitido');
+    } elseif ($origin !== '') {
+        $hostOrigen = strtolower((string) parse_url($origin, PHP_URL_HOST));
+        $hostSitio = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]);
+        if ($hostOrigen === '' || $hostOrigen !== $hostSitio) $fallo(403, 'Petición de origen no permitido');
+    } elseif (stripos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') === false) {
+        $fallo(403, 'Petición no permitida');
+    }
 }
 
 function requireRole($minRole) {
@@ -96,6 +126,9 @@ function cargarUsuariosReceptor() {
 
 function resolveRole($email) {
     if (strtolower($email) === SUPREME_ADMIN_EMAIL) return 'superadmin';
+    // Los administradores protegidos siempre tienen acceso, aunque el archivo de
+    // usuarios se haya perdido (p.ej. volumen sin montar tras un despliegue).
+    if (esAdminProtegido($email)) return 'admin';
     foreach (cargarUsuariosReceptor() as $u) {
         if (strtolower($u['email'] ?? '') === strtolower($email)) return 'admin';
     }

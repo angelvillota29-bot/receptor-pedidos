@@ -112,7 +112,13 @@ export default function HistorialTab() {
     filas.push([]);
     filas.push(['', '', '', '', 'Total gastos', String(totalGastos)]);
     filas.push(['', '', '', '', 'Ganancia del día', String(ganancia)]);
-    const csv = filas.map((f) => f.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    // Si un texto (nombre, teléfono...) empieza con = + - @ Excel lo trataría como
+    // una fórmula; se le antepone ' para que se vea como texto y no se ejecute.
+    const celda = (c) => {
+      const s = String(c);
+      return typeof c === 'string' && /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
+    };
+    const csv = filas.map((f) => f.map((c) => `"${celda(c).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

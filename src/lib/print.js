@@ -45,12 +45,12 @@ export function imprimirTicket(o) {
   const itemsHtml = (o.items || [])
     .map(
       (it) => `<div class="item">
-        <span class="item-nombre">${it.cantidad} x ${escapeHtml(it.name)}</span>
+        <span class="item-nombre">${escapeHtml(it.cantidad)} x ${escapeHtml(it.name)}</span>
         <span class="item-precio">${formatoCOP(it.precioUnitario * it.cantidad)}</span>
       </div>`
     )
     .join('');
-  imprimirHtmlOculto(`<!DOCTYPE html><html><head><title>Ticket #${o.id}</title>
+  imprimirHtmlOculto(`<!DOCTYPE html><html><head><title>Ticket #${escapeHtml(o.id)}</title>
     <meta name="color-scheme" content="light">
     <style>
       @page { size: 56mm auto; margin: 0; }
@@ -81,7 +81,7 @@ export function imprimirTicket(o) {
       .gracias{ text-align:center; font-size:11px; font-weight:800; color:#000; margin-top:3mm; }
     </style></head><body>
     <div class="marca">The Club Housse</div>
-    <div class="subtitulo">Pedido #${String(o.id).slice(-6)} &middot; ${formatoHora(o.createdAt)}</div>
+    <div class="subtitulo">Pedido #${escapeHtml(String(o.id).slice(-6))} &middot; ${formatoHora(o.createdAt)}</div>
     <div class="tipo-entrega">${escapeHtml(TIPO_ENTREGA_PLANO[o.tipoEntrega] || o.tipoEntrega || '')}</div>
     <div class="linea"></div>
     <div class="cliente">

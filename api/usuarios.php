@@ -5,6 +5,7 @@
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_once __DIR__ . '/_auth.php';
+requirePostSameOrigin();
 requireRole('superadmin');
 
 $file = dirname(__DIR__) . '/data/usuarios_receptor.json';
@@ -31,7 +32,7 @@ function guardarUsuarios($file, $usuarios) {
         $proceso = function_exists('posix_getpwuid') ? (posix_getpwuid(posix_geteuid())['name'] ?? posix_geteuid()) : posix_geteuid();
         return "Sin permiso de escritura en $dir (dueño actual: $dueno, proceso PHP corre como: $proceso)";
     }
-    if (file_put_contents($file, json_encode($usuarios)) === false) {
+    if (file_put_contents($file, json_encode($usuarios), LOCK_EX) === false) {
         $err = error_get_last();
         return 'No se pudo escribir el archivo: ' . ($err['message'] ?? 'error desconocido');
     }
@@ -50,6 +51,12 @@ $accion = $input['accion'] ?? 'listar';
 $usuarios = cargarUsuarios($file);
 
 if ($accion === 'listar') {
+    // Los protegidos siempre aparecen en la lista, estén o no en el archivo.
+    foreach (PROTECTED_ADMIN_EMAILS as $prot) {
+        $ya = false;
+        foreach ($usuarios as $u) { if (strtolower($u['email'] ?? '') === strtolower($prot)) { $ya = true; break; } }
+        if (!$ya) $usuarios[] = ['email' => $prot];
+    }
     echo json_encode(['success' => true, 'usuarios' => array_map(fn($u) => ['email' => $u['email'], 'protegido' => esAdminProtegido($u['email'])], $usuarios)]);
     exit;
 }
