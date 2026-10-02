@@ -195,6 +195,8 @@ export default function AnaliticasTab() {
         </div>
       </div>
 
+      <p className="historial-aviso">Solo cuentan las ventas con el pago confirmado. Los pedidos anteriores al control de pagos se cuentan como confirmados.</p>
+
       {stats.pedidos === 0 ? (
         <p className="empty-msg">No hay ventas con pago confirmado en este periodo.</p>
       ) : (

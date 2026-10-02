@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchHistorial, gastosApi, confirmarPago } from '../lib/api';
 import { formatoCOP, formatoHoraCorta, formatoFechaISO, hoyISO, CANAL_LABEL, PAGO_LABEL } from '../lib/format';
 
+function estadoPago(p) {
+  if (p.pagoConfirmado === false) return 'Pendiente';
+  if (p.pagoConfirmadoAt) return `✔ Confirmado ${formatoHoraCorta(p.pagoConfirmadoAt)}`;
+  return '✔ Confirmado (anterior al control de pagos)';
+}
+
 export default function HistorialTab() {
   const [pedidos, setPedidos] = useState([]);
   const [gastos, setGastos] = useState([]);
@@ -92,9 +98,9 @@ export default function HistorialTab() {
   };
 
   const descargarCsv = () => {
-    const filas = [['Hora', 'Cliente', 'Telefono', 'Canal', 'Metodo de pago', 'Total']];
+    const filas = [['Hora', 'Cliente', 'Telefono', 'Canal', 'Metodo de pago', 'Total', 'Estado del pago', 'Confirmado por', 'Despachado']];
     for (const p of delDia) {
-      filas.push([formatoHoraCorta(p.createdAt), p.cliente?.nombre || '', p.cliente?.telefono || '', CANAL_LABEL[p.canal] || p.canal || '', PAGO_LABEL[p.metodoPago] || p.metodoPago || '', String(p.total || 0)]);
+      filas.push([formatoHoraCorta(p.createdAt), p.cliente?.nombre || '', p.cliente?.telefono || '', CANAL_LABEL[p.canal] || p.canal || '', PAGO_LABEL[p.metodoPago] || p.metodoPago || '', String(p.total || 0), estadoPago(p).replace('✔ ', ''), p.pagoConfirmadoPor || '', p.despachadoAt ? formatoHoraCorta(p.despachadoAt) : '']);
     }
     filas.push([]);
     filas.push(['', '', '', '', 'Total ventas', String(totalVentas)]);
@@ -160,7 +166,9 @@ export default function HistorialTab() {
                   <th>Hora</th>
                   <th>Cliente</th>
                   <th>Canal</th>
-                  <th>Pago</th>
+                  <th>Método</th>
+                  <th>Estado del pago</th>
+                  <th>Despacho</th>
                   <th>Total</th>
                 </tr>
               </thead>
@@ -171,6 +179,8 @@ export default function HistorialTab() {
                     <td>{p.cliente?.nombre || ''}</td>
                     <td>{CANAL_LABEL[p.canal] || p.canal || ''}</td>
                     <td>{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
+                    <td title={p.pagoConfirmadoPor ? `Confirmó: ${p.pagoConfirmadoPor}` : ''}>{estadoPago(p)}</td>
+                    <td>{p.despachadoAt ? `Despachado ${formatoHoraCorta(p.despachadoAt)}` : '—'}</td>
                     <td>{formatoCOP(p.total)}</td>
                   </tr>
                 ))}

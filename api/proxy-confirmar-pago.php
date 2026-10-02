@@ -6,7 +6,7 @@
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_once __DIR__ . '/_auth.php';
-requireRole('admin');
+$session = requireRole('admin');
 
 $baseUrl = getenv('RESTAURANTE_API_URL');
 $apiKey = getenv('RESTAURANTE_API_KEY');
@@ -16,7 +16,11 @@ if (!$baseUrl || !$apiKey) {
     exit;
 }
 
-$input = file_get_contents('php://input');
+// Se agrega quién confirmó (el correo con el que inició sesión), tomado de la
+// sesión del servidor y no de lo que mande el navegador.
+$cuerpo = json_decode(file_get_contents('php://input'), true) ?: [];
+$cuerpo['confirmadoPor'] = $session['email'] ?? '';
+$input = json_encode($cuerpo);
 
 $ch = curl_init(rtrim($baseUrl, '/') . '/api/confirm-payment.php');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
