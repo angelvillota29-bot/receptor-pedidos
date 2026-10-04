@@ -29,6 +29,13 @@ export default function TicketCard({ order, onDelete, onConfirmarPago }) {
           </li>
         ))}
       </ul>
+      {order.cargoDomicilio > 0 && (
+        <div className="ticket-domicilio">
+          Domicilio: {formatoCOP(order.cargoDomicilio)}
+          {order.envio?.distanciaKm ? ` · ${String(order.envio.distanciaKm).replace('.', ',')} km` : ''}
+          {order.envio?.barrio ? ` · ${order.envio.barrio}` : ''}
+        </div>
+      )}
       <div className="ticket-total">Total: {formatoCOP(order.total)}</div>
       <div className="ticket-actions">
         <button className="btn-print" onClick={() => imprimirTicket(order)}>

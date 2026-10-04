@@ -441,3 +441,65 @@
   color: var(--brand-orange-deep);
   padding-left: 14px;
 }
+
+.btn-eliminar-mini {
+  background: transparent;
+  border: 1.5px solid var(--brand-danger);
+  color: var(--brand-danger);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-eliminar-mini:hover {
+  background: var(--brand-danger);
+  color: #fff;
+}
+.ticket-domicilio {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-orange-deep);
+  padding: 4px 0 0;
+}
+.zona-peligro {
+  background: #fff;
+  border: 2px solid var(--brand-danger);
+  border-radius: 14px;
+  padding: 16px 20px;
+  max-width: 640px;
+}
+.zona-peligro h3 {
+  margin: 0 0 6px;
+  color: var(--brand-danger);
+  font-family: var(--font-display);
+}
+.zona-peligro p {
+  font-size: 13px;
+  color: #4a3c30;
+}
+.zona-listas {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #4a3c30;
+}
+.zona-listas ul {
+  margin: 4px 0 8px;
+  padding-left: 18px;
+}
+.btn-peligro {
+  background: var(--brand-danger);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn-peligro:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -6,6 +6,7 @@ import PedidosTab from './components/PedidosTab';
 import HistorialTab from './components/HistorialTab';
 import AnaliticasTab from './components/AnaliticasTab';
 import UsuariosTab from './components/UsuariosTab';
+import SistemaTab from './components/SistemaTab';
 
 export default function App() {
   const { user, hasAccess, logout, ready } = useAuth();
@@ -42,6 +43,7 @@ export default function App() {
       {tab === 'historial' && <HistorialTab />}
       {tab === 'analiticas' && <AnaliticasTab />}
       {tab === 'usuarios' && <UsuariosTab />}
+      {tab === 'sistema' && <SistemaTab />}
     </div>
   );
 }

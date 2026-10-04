@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { fetchHistorial, gastosApi, confirmarPago } from '../lib/api';
-import { formatoCOP, formatoHoraCorta, formatoFechaISO, hoyISO, CANAL_LABEL, PAGO_LABEL } from '../lib/format';
+import { fetchHistorial, gastosApi, confirmarPago, eliminarPedido } from '../lib/api';
+import { formatoCOP, formatoHoraCorta, formatoFechaISO, fechaISOHaceDias, hoyISO, CANAL_LABEL, PAGO_LABEL } from '../lib/format';
 import { generarReporteExcel, rangoDelMes, nombreArchivo } from '../lib/reporteExcel';
 
 function estadoPago(p) {
@@ -64,6 +64,25 @@ export default function HistorialTab() {
       cargarPedidos();
     } catch {
       alert('No se pudo confirmar el pago, intenta de nuevo.');
+    }
+  };
+
+  // Solo se pueden eliminar pedidos de hoy y de ayer (por un pedido cancelado o
+  // con error). Pasado ese plazo la opción desaparece sola y el servidor tampoco
+  // la permite.
+  const puedeEliminar = (p) => formatoFechaISO(p.createdAt) >= fechaISOHaceDias(1);
+  const eliminarDelHistorial = async (p) => {
+    const quien = p.cliente?.nombre || 'sin nombre';
+    if (!confirm(`¿Eliminar el pedido de ${quien} por ${formatoCOP(p.total)}?\n\nSe borra del Historial y deja de contar en las ventas. Solo se puede hacer con pedidos de hoy y de ayer. Queda registrado quién lo eliminó.`)) return;
+    try {
+      const data = await eliminarPedido(p.id);
+      if (!data.success) {
+        alert('No se pudo eliminar: ' + (data.error || 'error desconocido'));
+        return;
+      }
+      cargarPedidos();
+    } catch {
+      alert('No se pudo eliminar el pedido, intenta de nuevo.');
     }
   };
 
@@ -176,6 +195,7 @@ export default function HistorialTab() {
                   <th>Estado del pago</th>
                   <th>Despacho</th>
                   <th>Total</th>
+                  <th className="no-print"></th>
                 </tr>
               </thead>
               <tbody>
@@ -188,6 +208,13 @@ export default function HistorialTab() {
                     <td title={p.pagoConfirmadoPor ? `Confirmó: ${p.pagoConfirmadoPor}` : ''}>{estadoPago(p)}</td>
                     <td>{p.despachadoAt ? `Despachado ${formatoHoraCorta(p.despachadoAt)}` : '—'}</td>
                     <td>{formatoCOP(p.total)}</td>
+                    <td className="no-print">
+                      {puedeEliminar(p) && (
+                        <button className="btn-eliminar-mini" onClick={() => eliminarDelHistorial(p)} title="Eliminar este pedido (solo hoy y ayer)">
+                          🗑 Eliminar
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -217,10 +244,15 @@ export default function HistorialTab() {
                   <td>{p.cliente?.nombre || ''}</td>
                   <td>{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
                   <td>{formatoCOP(p.total)}</td>
-                  <td>
+                  <td className="no-print">
                     <button className="btn-confirmar-mini" onClick={() => confirmarDesdeHistorial(p.id)}>
                       ✅ Confirmar pago
-                    </button>
+                    </button>{' '}
+                    {puedeEliminar(p) && (
+                      <button className="btn-eliminar-mini" onClick={() => eliminarDelHistorial(p)} title="Eliminar este pedido (solo hoy y ayer)">
+                        🗑 Eliminar
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

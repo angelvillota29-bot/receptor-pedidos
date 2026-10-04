@@ -24,6 +24,24 @@ export async function confirmarPago(id) {
   return res.json();
 }
 
+export async function eliminarPedido(id) {
+  const res = await fetch('api/proxy-eliminar-pedido.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  });
+  return res.json();
+}
+
+export async function reiniciarSistema(confirmacion) {
+  const res = await fetch('api/proxy-reiniciar.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ confirmacion }),
+  });
+  return res.json();
+}
+
 export async function fetchHistorial() {
   const res = await fetch('api/proxy-historial.php');
   return res.json();

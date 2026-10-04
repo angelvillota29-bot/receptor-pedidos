@@ -95,6 +95,7 @@ export function imprimirTicket(o) {
     </div>
     <div class="linea"></div>
     <div class="items">${itemsHtml}</div>
+    ${o.cargoDomicilio > 0 ? `<div class="item"><span class="item-nombre">Domicilio${o.envio?.barrio ? `<span class="adic">${escapeHtml(o.envio.barrio)}</span>` : ''}</span><span class="item-precio">${formatoCOP(o.cargoDomicilio)}</span></div>` : ''}
     <div class="total"><span>Total</span><span>${formatoCOP(o.total)}</span></div>
     <div class="pago">Pago: ${escapeHtml(PAGO_LABEL[o.metodoPago] || o.metodoPago || '')}</div>
     <div class="gracias">Gracias por tu compra</div>

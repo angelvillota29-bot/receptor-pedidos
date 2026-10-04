@@ -5,6 +5,7 @@ const TABS = [
   { key: 'historial', label: 'Historial' },
   { key: 'analiticas', label: 'Analíticas' },
   { key: 'usuarios', label: 'Usuarios', adminOnly: true },
+  { key: 'sistema', label: 'Sistema', adminOnly: true },
 ];
 
 export default function TopBar({ tab, onTab, lastUpdate, onRefresh }) {

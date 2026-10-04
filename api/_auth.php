@@ -134,3 +134,24 @@ function resolveRole($email) {
     }
     return 'cliente';
 }
+
+
+// Llama a un endpoint del sitio del restaurante (RESTAURANTE_API_URL) con la API Key
+// del lado del servidor. Devuelve [respuestaTexto|false, errorCurl, httpStatus].
+function llamarSitio($ruta, $apiKey, $jsonBody, $timeout = 10) {
+    $base = rtrim((string) getenv('RESTAURANTE_API_URL'), '/');
+    if (isset($GLOBALS['__sitio_fetch']) && is_callable($GLOBALS['__sitio_fetch'])) {
+        return $GLOBALS['__sitio_fetch']($base . $ruta, $apiKey, $jsonBody);
+    }
+    $ch = curl_init($base . $ruta);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $apiKey, 'Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    $respuesta = curl_exec($ch);
+    $error = curl_error($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return [$respuesta, $error, $status];
+}
