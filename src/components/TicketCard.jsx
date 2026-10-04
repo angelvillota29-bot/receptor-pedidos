@@ -21,6 +21,11 @@ export default function TicketCard({ order, onDelete, onConfirmarPago }) {
         {(order.items || []).map((it, i) => (
           <li key={i}>
             {it.cantidad} x {it.name}
+            {(it.adiciones || []).map((a, j) => (
+              <div key={j} className="ticket-adicion">
+                + {a.name}
+              </div>
+            ))}
           </li>
         ))}
       </ul>

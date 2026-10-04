@@ -434,3 +434,10 @@
     padding: 4px 6px;
   }
 }
+
+.ticket-adicion {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-orange-deep);
+  padding-left: 14px;
+}

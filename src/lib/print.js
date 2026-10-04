@@ -45,7 +45,9 @@ export function imprimirTicket(o) {
   const itemsHtml = (o.items || [])
     .map(
       (it) => `<div class="item">
-        <span class="item-nombre">${escapeHtml(it.cantidad)} x ${escapeHtml(it.name)}</span>
+        <span class="item-nombre">${escapeHtml(it.cantidad)} x ${escapeHtml(it.name)}${(it.adiciones || [])
+          .map((a) => `<span class="adic">+ ${escapeHtml(a.name)}</span>`)
+          .join('')}</span>
         <span class="item-precio">${formatoCOP(it.precioUnitario * it.cantidad)}</span>
       </div>`
     )
@@ -75,6 +77,7 @@ export function imprimirTicket(o) {
       .items{ margin-top:1mm; }
       .item{ display:flex; align-items:flex-start; justify-content:space-between; gap:4px; font-size:12px; font-weight:600; color:#000; padding:0.8mm 0; }
       .item-nombre{ flex:1; }
+      .adic{ display:block; font-size:11px; font-weight:700; padding-left:3mm; }
       .item-precio{ white-space:nowrap; font-weight:800; }
       .total{ display:flex; justify-content:space-between; font-weight:800; font-size:15px; color:#000; border-top:1.5px solid #000; padding-top:2mm; margin-top:2mm; }
       .pago{ font-size:11px; font-weight:700; color:#000; margin-top:2mm; text-align:center; }
