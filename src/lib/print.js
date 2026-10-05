@@ -47,7 +47,7 @@ export function imprimirTicket(o) {
       (it) => `<div class="item">
         <span class="item-nombre">${escapeHtml(it.cantidad)} x ${escapeHtml(it.name)}${(it.adiciones || [])
           .map((a) => `<span class="adic">+ ${escapeHtml(a.name)}</span>`)
-          .join('')}</span>
+          .join('')}${it.salsas?.length ? `<span class="adic">Salsas: ${escapeHtml(it.salsas.join(', '))}</span>` : ''}</span>
         <span class="item-precio">${formatoCOP(it.precioUnitario * it.cantidad)}</span>
       </div>`
     )

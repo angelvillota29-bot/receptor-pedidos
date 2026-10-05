@@ -299,7 +299,7 @@ export async function generarReporteExcel({ pedidos, gastos, desde, hasta }) {
       r.getCell(6).value = ENTREGA[p.tipoEntrega] || p.tipoEntrega || '';
       r.getCell(7).value = CANAL_LABEL[p.canal] || p.canal || '';
       r.getCell(8).value = PAGO_LABEL[p.metodoPago] || p.metodoPago || '';
-      r.getCell(9).value = (p.items || []).map((it) => `${it.cantidad} × ${it.name}${it.adiciones?.length ? ` (${it.adiciones.map((a) => `+ ${a.name}`).join(', ')})` : ''}`).join('\n');
+      r.getCell(9).value = (p.items || []).map((it) => `${it.cantidad} × ${it.name}${it.adiciones?.length ? ` (${it.adiciones.map((a) => `+ ${a.name}`).join(', ')})` : ''}${it.salsas?.length ? ` [Salsas: ${it.salsas.join(', ')}]` : ''}`).join('\n');
       r.getCell(9).alignment = { wrapText: true, vertical: 'middle' };
       r.getCell(10).value = p.total || 0;
       r.getCell(10).numFmt = FMT_PESOS;

@@ -26,6 +26,7 @@ export default function TicketCard({ order, onDelete, onConfirmarPago }) {
                 + {a.name}
               </div>
             ))}
+            {it.salsas?.length > 0 && <div className="ticket-adicion">Salsas: {it.salsas.join(', ')}</div>}
           </li>
         ))}
       </ul>
