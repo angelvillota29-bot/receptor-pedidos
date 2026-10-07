@@ -1,4 +1,4 @@
-import { formatoCOP, formatoHora, PAGO_LABEL } from './format';
+import { formatoCOP, formatoHora, PAGO_LABEL, numeroPedido } from './format';
 
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -84,7 +84,7 @@ export function imprimirTicket(o) {
       .gracias{ text-align:center; font-size:11px; font-weight:800; color:#000; margin-top:3mm; }
     </style></head><body>
     <div class="marca">The Club Housse</div>
-    <div class="subtitulo">Pedido #${escapeHtml(String(o.id).slice(-6))} &middot; ${formatoHora(o.createdAt)}</div>
+    <div class="subtitulo">${o.consecutivo ? 'Recibo N.º ' : 'Pedido #'}${escapeHtml(numeroPedido(o))} &middot; ${formatoHora(o.createdAt)}</div>
     <div class="tipo-entrega">${escapeHtml(TIPO_ENTREGA_PLANO[o.tipoEntrega] || o.tipoEntrega || '')}</div>
     <div class="linea"></div>
     <div class="cliente">

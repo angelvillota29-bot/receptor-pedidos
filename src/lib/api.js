@@ -42,6 +42,18 @@ export async function reiniciarSistema(confirmacion) {
   return res.json();
 }
 
+export async function subirComprobante(orderId, foto) {
+  const f = new FormData();
+  f.append('orderId', String(orderId));
+  f.append('comprobante', foto, 'comprobante.jpg');
+  const res = await fetch('api/proxy-subir-comprobante.php', { method: 'POST', body: f });
+  try {
+    return await res.json();
+  } catch {
+    return { success: false, error: 'No se pudo guardar el comprobante.' };
+  }
+}
+
 export async function fetchHistorial() {
   const res = await fetch('api/proxy-historial.php');
   return res.json();

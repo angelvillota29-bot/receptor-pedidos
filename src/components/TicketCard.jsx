@@ -1,13 +1,14 @@
-import { formatoCOP, formatoHora, TIPO_ENTREGA_LABEL } from '../lib/format';
+import { formatoCOP, formatoHora, TIPO_ENTREGA_LABEL, PAGO_LABEL, numeroPedido } from '../lib/format';
+import ComprobantePago from './ComprobantePago';
 import { imprimirTicket } from '../lib/print';
 
-export default function TicketCard({ order, onDelete, onConfirmarPago }) {
+export default function TicketCard({ order, onDelete, onConfirmarPago, onActualizado }) {
   // Los pedidos anteriores a esta función no traen la marca: cuentan como pagados.
   const pagado = order.pagoConfirmado !== false;
   return (
     <article className="ticket">
       <div className="ticket-header">
-        <span>#{String(order.id).slice(-6)}</span>
+        <span>{order.consecutivo ? 'N.º ' : '#'}{numeroPedido(order)}</span>
         <span>{formatoHora(order.createdAt)}</span>
       </div>
       <div className="ticket-client">
@@ -38,6 +39,8 @@ export default function TicketCard({ order, onDelete, onConfirmarPago }) {
         </div>
       )}
       <div className="ticket-total">Total: {formatoCOP(order.total)}</div>
+      <div className={`ticket-metodo metodo-${order.metodoPago || 'efectivo'}`}>Pago: {PAGO_LABEL[order.metodoPago] || order.metodoPago || 'Efectivo'}</div>
+      <ComprobantePago order={order} onActualizado={onActualizado} />
       <div className="ticket-actions">
         <button className="btn-print" onClick={() => imprimirTicket(order)}>
           🖨️ Imprimir

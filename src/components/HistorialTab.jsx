@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchHistorial, gastosApi, confirmarPago, eliminarPedido } from '../lib/api';
-import { formatoCOP, formatoHoraCorta, formatoFechaISO, fechaISOHaceDias, hoyISO, CANAL_LABEL, PAGO_LABEL } from '../lib/format';
+import { formatoCOP, formatoHoraCorta, formatoFechaISO, fechaISOHaceDias, hoyISO, CANAL_LABEL, PAGO_LABEL, numeroPedido } from '../lib/format';
+import ComprobantePago from './ComprobantePago';
 import { generarReporteExcel, rangoDelMes, nombreArchivo } from '../lib/reporteExcel';
 
 function estadoPago(p) {
@@ -53,6 +54,17 @@ export default function HistorialTab() {
   const delDia = useMemo(() => todosDelDia.filter((p) => p.pagoConfirmado !== false), [todosDelDia]);
   const sinConfirmar = useMemo(() => todosDelDia.filter((p) => p.pagoConfirmado === false), [todosDelDia]);
   const totalVentas = delDia.reduce((acc, p) => acc + (p.total || 0), 0);
+  // Ventas confirmadas separadas por cómo pagó el cliente (efectivo en caja,
+  // Nequi o Daviplata en la cuenta).
+  const porMetodo = useMemo(() => {
+    const r = { efectivo: { n: 0, total: 0 }, nequi: { n: 0, total: 0 }, daviplata: { n: 0, total: 0 } };
+    for (const p of delDia) {
+      const k = r[p.metodoPago] ? p.metodoPago : 'efectivo';
+      r[k].n += 1;
+      r[k].total += p.total || 0;
+    }
+    return r;
+  }, [delDia]);
 
   const confirmarDesdeHistorial = async (id) => {
     try {
@@ -178,6 +190,16 @@ export default function HistorialTab() {
         </div>
       </div>
 
+      <div className="resumen-metodos">
+        {['efectivo', 'nequi', 'daviplata'].map((k) => (
+          <div key={k} className={`resumen-metodo metodo-${k}`}>
+            <span>{PAGO_LABEL[k]}</span>
+            <strong>{formatoCOP(porMetodo[k].total)}</strong>
+            <small>{porMetodo[k].n} pedido{porMetodo[k].n === 1 ? '' : 's'}</small>
+          </div>
+        ))}
+      </div>
+
       {error && <p className="empty-msg">{error}</p>}
       {!error && (
         <>
@@ -188,10 +210,12 @@ export default function HistorialTab() {
             <table className="historial-tabla">
               <thead>
                 <tr>
+                  <th>N.º</th>
                   <th>Hora</th>
                   <th>Cliente</th>
                   <th>Canal</th>
                   <th>Método</th>
+                  <th>Comprobante</th>
                   <th>Estado del pago</th>
                   <th>Despacho</th>
                   <th>Total</th>
@@ -201,10 +225,12 @@ export default function HistorialTab() {
               <tbody>
                 {delDia.map((p, i) => (
                   <tr key={i}>
+                    <td>{numeroPedido(p)}</td>
                     <td>{formatoHoraCorta(p.createdAt)}</td>
                     <td>{p.cliente?.nombre || ''}</td>
                     <td>{CANAL_LABEL[p.canal] || p.canal || ''}</td>
                     <td>{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
+                    <td className="no-print-celda">{p.metodoPago === 'nequi' || p.metodoPago === 'daviplata' ? <ComprobantePago order={p} onActualizado={cargarPedidos} /> : '—'}</td>
                     <td title={p.pagoConfirmadoPor ? `Confirmó: ${p.pagoConfirmadoPor}` : ''}>{estadoPago(p)}</td>
                     <td>{p.despachadoAt ? `Despachado ${formatoHoraCorta(p.despachadoAt)}` : '—'}</td>
                     <td>{formatoCOP(p.total)}</td>
@@ -230,9 +256,11 @@ export default function HistorialTab() {
           <table className="historial-tabla">
             <thead>
               <tr>
+                <th>N.º</th>
                 <th>Hora</th>
                 <th>Cliente</th>
                 <th>Pago</th>
+                <th>Comprobante</th>
                 <th>Total</th>
                 <th></th>
               </tr>
@@ -240,9 +268,11 @@ export default function HistorialTab() {
             <tbody>
               {sinConfirmar.map((p) => (
                 <tr key={p.id}>
+                  <td>{numeroPedido(p)}</td>
                   <td>{formatoHoraCorta(p.createdAt)}</td>
                   <td>{p.cliente?.nombre || ''}</td>
                   <td>{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
+                  <td>{p.metodoPago === 'nequi' || p.metodoPago === 'daviplata' ? <ComprobantePago order={p} onActualizado={cargarPedidos} /> : '—'}</td>
                   <td>{formatoCOP(p.total)}</td>
                   <td className="no-print">
                     <button className="btn-confirmar-mini" onClick={() => confirmarDesdeHistorial(p.id)}>

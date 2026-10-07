@@ -77,7 +77,7 @@ export default function PedidosTab({ onLastUpdate, refreshSignal }) {
       ) : (
         <main className="orders-grid">
           {orders.map((o) => (
-            <TicketCard key={o.id} order={o} onDelete={onDelete} onConfirmarPago={onConfirmarPago} />
+            <TicketCard key={o.id} order={o} onDelete={onDelete} onConfirmarPago={onConfirmarPago} onActualizado={cargar} />
           ))}
         </main>
       )}

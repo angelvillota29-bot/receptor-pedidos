@@ -3,7 +3,7 @@
 // totales con fórmulas, montos en pesos y fechas reales (se pueden filtrar y
 // ordenar). Reemplaza al CSV plano de antes. La librería (exceljs) pesa
 // bastante, así que solo se descarga cuando alguien pulsa "Descargar".
-import { formatoFechaISO, CANAL_LABEL, PAGO_LABEL } from './format.js';
+import { formatoFechaISO, CANAL_LABEL, PAGO_LABEL, numeroPedido } from './format.js';
 
 const TZ = 'America/Bogota';
 const C = {
@@ -278,8 +278,8 @@ export async function generarReporteExcel({ pedidos, gastos, desde, hasta }) {
   const armarHojaPedidos = (nombre, lista, tabColor, conTotal) => {
     const ws = wb.addWorksheet(nombre, { properties: { tabColor: { argb: tabColor } }, views: [{ state: 'frozen', ySplit: 4, showGridLines: false }] });
     const cols = [
-      ['Fecha', 12], ['Hora', 8], ['N.º pedido', 11], ['Cliente', 24], ['Teléfono', 14], ['Entrega', 15],
-      ['Canal', 20], ['Pago', 11], ['Productos', 44], ['Total', 14], ['Estado del pago', 26], ['Confirmado por', 26], ['Despachado', 12],
+      ['Fecha', 12], ['Hora', 8], ['N.º recibo', 11], ['Cliente', 24], ['Teléfono', 14], ['Entrega', 15],
+      ['Canal', 20], ['Pago', 11], ['Productos', 44], ['Total', 14], ['Estado del pago', 26], ['Confirmado por', 26], ['Despachado', 12], ['Comprobante', 14],
     ];
     ws.columns = cols.map(([, w]) => ({ width: w }));
     titulo(ws, 'THE CLUB HOUSSE', `${nombre} · ${periodoTxt}`, cols.length);
@@ -292,7 +292,7 @@ export async function generarReporteExcel({ pedidos, gastos, desde, hasta }) {
       r.getCell(1).alignment = { horizontal: 'center' };
       r.getCell(2).value = hora24(p.createdAt);
       r.getCell(2).alignment = { horizontal: 'center' };
-      r.getCell(3).value = String(p.id).slice(-6);
+      r.getCell(3).value = numeroPedido(p);
       r.getCell(3).alignment = { horizontal: 'center' };
       r.getCell(4).value = p.cliente?.nombre || '';
       r.getCell(5).value = p.cliente?.telefono || '';
@@ -307,6 +307,8 @@ export async function generarReporteExcel({ pedidos, gastos, desde, hasta }) {
       r.getCell(12).value = p.pagoConfirmadoPor || '';
       r.getCell(13).value = p.despachadoAt ? hora24(p.despachadoAt) : '—';
       r.getCell(13).alignment = { horizontal: 'center' };
+      r.getCell(14).value = p.metodoPago === 'efectivo' || !p.metodoPago ? '—' : p.comprobantes?.length ? `Sí (${p.comprobantes.length})` : 'No';
+      r.getCell(14).alignment = { horizontal: 'center' };
       estiloFila(r, i);
       r.getCell(11).font = { name: 'Calibri', size: 11, bold: true, color: { argb: p.pagoConfirmado === false ? C.rojo : C.verde } };
       r.getCell(9).alignment = { wrapText: true, vertical: 'middle' };

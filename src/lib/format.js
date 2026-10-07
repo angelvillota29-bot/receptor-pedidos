@@ -22,7 +22,14 @@ export function hoyISO() {
 
 export const CANAL_LABEL = { whatsapp: 'WhatsApp', telegram: 'Telegram', chat_web: 'Chat del sitio', pagina: 'Carrito de la página' };
 export const TIPO_ENTREGA_LABEL = { domicilio: '🛵 A domicilio', recoger: '🏪 Para recoger', comer_aqui: '🍽️ Comer aquí' };
-export const PAGO_LABEL = { efectivo: 'Efectivo', nequi: 'Nequi' };
+export const PAGO_LABEL = { efectivo: 'Efectivo', nequi: 'Nequi', daviplata: 'Daviplata' };
+
+// Número de recibo (consecutivo) con ceros: 7 -> "0007". Los pedidos anteriores
+// a esta función no lo tienen: se muestra el final de su código de siempre.
+export function numeroPedido(o) {
+  const n = Number(o?.consecutivo);
+  return Number.isFinite(n) && n > 0 ? String(n).padStart(4, '0') : String(o?.id ?? '').slice(-6);
+}
 
 export function horaDelDia(ms) {
   return Number(new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', hourCycle: 'h23' }).format(ms));
