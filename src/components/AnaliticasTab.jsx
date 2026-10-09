@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { fetchHistorial } from '../lib/api';
 import {
   formatoCOP,
@@ -39,19 +39,37 @@ function BarrasHorizontales({ filas, formato }) {
   );
 }
 
+// Gráfica de columnas. En celular (CSS) las etiquetas se muestran espaciadas y,
+// si son muchas columnas (más de 24), la gráfica se desliza de lado para que
+// las barras no queden apretadas.
 function Columnas({ columnas, formato }) {
   const max = Math.max(1, ...columnas.map((c) => c.valor));
+  const n = columnas.length;
+  const larga = n > 24;
+  const paso = n <= 14 ? 1 : n <= 24 ? 2 : 3;
+  const scroll = useRef(null);
+  useEffect(() => {
+    // Empieza viendo lo más reciente (el final).
+    if (larga && scroll.current) scroll.current.scrollLeft = scroll.current.scrollWidth;
+  }, [larga, n]);
+  // Con muchos días se muestra dd/mm; con pocas columnas, la etiqueta de siempre.
+  const etiqueta = (c) => (larga && /^\d{4}-\d{2}-\d{2}$/.test(c.titulo || '') ? `${c.titulo.slice(8)}/${c.titulo.slice(5, 7)}` : c.label);
   return (
-    <div className="columnas">
-      {columnas.map((c) => (
-        <div key={c.label} className="columna" title={`${c.titulo || c.label}: ${formato(c.valor)}`}>
-          <div className="columna-barra-wrap">
-            <div className="columna-barra" style={{ height: `${c.valor > 0 ? Math.max(3, (c.valor / max) * 100) : 0}%` }} />
-          </div>
-          <span className="columna-label">{c.label}</span>
+    <>
+      <div className={`columnas-scroll ${larga ? 'larga' : ''}`} ref={scroll}>
+        <div className="columnas" style={{ '--n': n }}>
+          {columnas.map((c, i) => (
+            <div key={c.label} className="columna" title={`${c.titulo || c.label}: ${formato(c.valor)}`}>
+              <div className="columna-barra-wrap">
+                <div className="columna-barra" style={{ height: `${c.valor > 0 ? Math.max(3, (c.valor / max) * 100) : 0}%` }} />
+              </div>
+              <span className={`columna-label ${i % paso === 0 ? '' : 'columna-label-oculta'}`}>{etiqueta(c)}</span>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
+      {larga && <p className="columnas-hint">Desliza hacia los lados para ver todos los días.</p>}
+    </>
   );
 }
 

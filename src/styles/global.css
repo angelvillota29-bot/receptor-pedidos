@@ -626,3 +626,13 @@
   .resumen-item strong { white-space: normal; overflow-wrap: anywhere; font-size: 16px; }
   .resumen-ganancia { grid-column: 1 / -1; }
 }
+
+/* Gráficas de columnas en celular: etiquetas espaciadas y desliz lateral si hay muchas */
+.columnas-hint { display: none; }
+@media (max-width: 640px) {
+  .columna-label-oculta { visibility: hidden; }
+  .columna-label { font-size: 10px; white-space: nowrap; overflow: visible; }
+  .columnas-scroll.larga { overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+  .columnas-scroll.larga .columnas { min-width: calc(var(--n) * 14px); gap: 4px; }
+  .columnas-hint { display: block; margin: 4px 0 0; font-size: 11px; color: #a68f78; text-align: center; }
+}
