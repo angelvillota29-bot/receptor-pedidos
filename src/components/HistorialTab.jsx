@@ -225,15 +225,15 @@ export default function HistorialTab() {
               <tbody>
                 {delDia.map((p, i) => (
                   <tr key={i}>
-                    <td>{numeroPedido(p)}</td>
-                    <td>{formatoHoraCorta(p.createdAt)}</td>
-                    <td>{p.cliente?.nombre || ''}</td>
-                    <td>{CANAL_LABEL[p.canal] || p.canal || ''}</td>
-                    <td>{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
-                    <td className="no-print-celda">{p.metodoPago === 'nequi' || p.metodoPago === 'daviplata' ? <ComprobantePago order={p} onActualizado={cargarPedidos} /> : '—'}</td>
-                    <td title={p.pagoConfirmadoPor ? `Confirmó: ${p.pagoConfirmadoPor}` : ''}>{estadoPago(p)}</td>
-                    <td>{p.despachadoAt ? `Despachado ${formatoHoraCorta(p.despachadoAt)}` : '—'}</td>
-                    <td>{formatoCOP(p.total)}</td>
+                    <td data-label="N.º">{numeroPedido(p)}</td>
+                    <td data-label="Hora">{formatoHoraCorta(p.createdAt)}</td>
+                    <td data-label="Cliente">{p.cliente?.nombre || ''}</td>
+                    <td data-label="Canal">{CANAL_LABEL[p.canal] || p.canal || ''}</td>
+                    <td data-label="Método">{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
+                    <td data-label="Comprobante" className="no-print-celda">{p.metodoPago === 'nequi' || p.metodoPago === 'daviplata' ? <ComprobantePago order={p} onActualizado={cargarPedidos} /> : '—'}</td>
+                    <td data-label="Estado del pago" title={p.pagoConfirmadoPor ? `Confirmó: ${p.pagoConfirmadoPor}` : ''}>{estadoPago(p)}</td>
+                    <td data-label="Despacho">{p.despachadoAt ? `Despachado ${formatoHoraCorta(p.despachadoAt)}` : '—'}</td>
+                    <td data-label="Total">{formatoCOP(p.total)}</td>
                     <td className="no-print">
                       {puedeEliminar(p) && (
                         <button className="btn-eliminar-mini" onClick={() => eliminarDelHistorial(p)} title="Eliminar este pedido (solo hoy y ayer)">
@@ -268,12 +268,12 @@ export default function HistorialTab() {
             <tbody>
               {sinConfirmar.map((p) => (
                 <tr key={p.id}>
-                  <td>{numeroPedido(p)}</td>
-                  <td>{formatoHoraCorta(p.createdAt)}</td>
-                  <td>{p.cliente?.nombre || ''}</td>
-                  <td>{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
-                  <td>{p.metodoPago === 'nequi' || p.metodoPago === 'daviplata' ? <ComprobantePago order={p} onActualizado={cargarPedidos} /> : '—'}</td>
-                  <td>{formatoCOP(p.total)}</td>
+                  <td data-label="N.º">{numeroPedido(p)}</td>
+                  <td data-label="Hora">{formatoHoraCorta(p.createdAt)}</td>
+                  <td data-label="Cliente">{p.cliente?.nombre || ''}</td>
+                  <td data-label="Pago">{PAGO_LABEL[p.metodoPago] || p.metodoPago || ''}</td>
+                  <td data-label="Comprobante">{p.metodoPago === 'nequi' || p.metodoPago === 'daviplata' ? <ComprobantePago order={p} onActualizado={cargarPedidos} /> : '—'}</td>
+                  <td data-label="Total">{formatoCOP(p.total)}</td>
                   <td className="no-print">
                     <button className="btn-confirmar-mini" onClick={() => confirmarDesdeHistorial(p.id)}>
                       ✅ Confirmar pago
@@ -315,8 +315,8 @@ export default function HistorialTab() {
           <tbody>
             {gastosDelDia.map((g) => (
               <tr key={g.id}>
-                <td>{g.descripcion}</td>
-                <td>{formatoCOP(g.monto)}</td>
+                <td data-label="Descripción">{g.descripcion}</td>
+                <td data-label="Monto">{formatoCOP(g.monto)}</td>
                 <td className="no-print">
                   <button className="btn-delete" style={{ borderRadius: 8, padding: '4px 10px', fontSize: 12 }} onClick={() => eliminarGasto(g.id)}>
                     Eliminar

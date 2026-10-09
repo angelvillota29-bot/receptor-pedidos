@@ -22,7 +22,7 @@ export default function TopBar({ tab, onTab, lastUpdate, onRefresh }) {
           </button>
         ))}
       </nav>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="top-bar-acciones">
         {lastUpdate && <span style={{ fontSize: 12, color: '#e8b98a' }}>Actualizado {lastUpdate}</span>}
         <button onClick={onRefresh} className="tab-btn">
           Actualizar

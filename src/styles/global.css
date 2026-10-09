@@ -584,3 +584,38 @@
 @media print {
   .comprobante-box, .no-print-celda { display: none !important; }
 }
+
+/* ── Celular: nada se sale de la pantalla ── */
+.historial-tabla { width: calc(100% - 40px); }
+.ticket, .ticket * { overflow-wrap: anywhere; }
+.orders-grid { grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
+.resumen-metodos { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }
+.top-bar-acciones { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.usuarios-lista li { gap: 10px; flex-wrap: wrap; }
+.usuarios-lista li > span { min-width: 0; overflow-wrap: anywhere; }
+.historial-toolbar .tab-btn { white-space: normal; max-width: 100%; }
+@media (max-width: 640px) {
+  .top-bar { padding: 10px 14px; }
+  .brand-title { font-size: 16px; }
+  .tabs { flex-wrap: wrap; gap: 6px; }
+  .tab-btn { padding: 6px 12px; font-size: 12px; }
+  .top-bar-acciones { justify-content: space-between; }
+  .orders-grid { padding: 14px; }
+  .resumen-dia, .resumen-metodos, .historial-subtitulo, .historial-aviso, .gasto-form, .historial-toolbar { padding-left: 14px; padding-right: 14px; }
+  .usuarios-lista { padding: 0 14px; }
+  .gasto-input, .gasto-input-monto { max-width: none; flex: 1 1 100%; min-width: 0; }
+  .resumen-item { min-width: 0; }
+  /* Las tablas del Historial se vuelven tarjetas: una por pedido */
+  .historial-tabla { display: block; width: auto; margin: 12px 14px; background: transparent; }
+  .historial-tabla thead { display: none; }
+  .historial-tabla tbody { display: flex; flex-direction: column; gap: 10px; }
+  .historial-tabla tr { display: block; background: #fff; border: 1.5px solid var(--brand-card-border); border-radius: 12px; padding: 6px 12px; }
+  .historial-tabla td { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: none; padding: 5px 0; text-align: right; overflow-wrap: anywhere; }
+  .historial-tabla td::before { content: attr(data-label); font-weight: 700; color: var(--brand-orange-deep); text-align: left; flex: none; }
+  .historial-tabla td:not([data-label])::before { content: none; }
+  .historial-tabla td:not([data-label]) { justify-content: flex-end; flex-wrap: wrap; }
+}
+
+.historial-toolbar .tab-btn { color: var(--brand-orange-deep); }
+.resumen-item strong { white-space: nowrap; }
+@media (max-width: 640px) { .resumen-item strong { font-size: 15px; } .resumen-item { padding: 8px 10px; } }
